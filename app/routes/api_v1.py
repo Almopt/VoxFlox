@@ -11,7 +11,8 @@ twilio = TwilioHandler(os.environ['TWILIO_ACCOUNT_SID'], os.environ['TWILIO_AUTH
 @router.post("/twilio_voice", response_class=HTMLResponse)
 async def handle_twilio_voice():
     resp = VoiceResponse()
-    return TwilioHandler.greet_and_gather(resp)
+    return twilio.greet_and_gather(resp)
+
 
 @router.post("/handle-speech", response_class=HTMLResponse)
 async def handle_speech():
