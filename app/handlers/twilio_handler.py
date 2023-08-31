@@ -12,4 +12,15 @@ class TwilioHandler:
 
         return str(response)
 
+    def handle_speech(self, response):
+        with response.gather(input='speech', action='/handle-speech', speechTimeout='2',
+                             speech_model='experimental_conversations', method='POST', language='pt-PT') as gather:
+            gather.say(message='Recebemos a sua mensagem com sucesso, para terminar a chamada diga adeus',
+                       language='pt-PT')
+
+        # response.say('Se desejar, você pode finalizar a chamada a qualquer momento. Caso contrário, continue a falar.')
+        # response.record(timeout=5, action='/handle-record', method='POST')
+
+        return str(response)
+
 
