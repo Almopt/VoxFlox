@@ -1,11 +1,14 @@
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
-from ..handlers import twilio_handler, langchain_handler
+from twilio.twiml.voice_response import VoiceResponse
+import os
+from ..handlers.twilio_handler import TwilioHandler
 
 router = APIRouter()
+twilio = TwilioHandler(os.environ['TWILIO_ACCOUNT_SID'], os.environ['TWILIO_AUTH_TOKEN'])
 
 
 @router.post("/twilio_voice", response_class=HTMLResponse)
 async def handle_twilio_voice():
-    twilio_handler.TwilioHandler()
-    return {"message": "Twilio is okay"}
+    resp = VoiceResponse()
+    return twilio.greet_and_gather(resp)
