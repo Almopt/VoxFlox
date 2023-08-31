@@ -6,14 +6,14 @@ class TwilioHandler:
         self.client = Client(account_sid, auth_token)
 
     def greet_and_gather(self, response):
-        with response.gather(input='speech', action='/handle-speech', speech_model='experimental_conversations',
+        with response.gather(input='speech', action='/v1/handle-speech', speech_model='experimental_conversations',
                              language='pt-PT') as gather:
             gather.say(message='Olá! Bem-vindo á Pizzaria Imaginária, em que posso ajudá-lo?', language='pt-PT')
 
         return str(response)
 
     def handle_speech(self, response):
-        with response.gather(input='speech', action='/handle-speech', speechTimeout='2',
+        with response.gather(input='speech', action='/v1/handle-speech', speechTimeout='2',
                              speech_model='experimental_conversations', method='POST', language='pt-PT') as gather:
             gather.say(message='Recebemos a sua mensagem com sucesso, para terminar a chamada diga adeus',
                        language='pt-PT')
