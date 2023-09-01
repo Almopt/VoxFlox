@@ -19,10 +19,16 @@ def answer_call():
 @router.post("/handle-dialog", response_class=HTMLResponse)
 async def handle_dialog(request: Request):
     body = await request.body()
-    print(body.decode())
+    #print(body.decode())
     data_dict = parse_qs(body.decode())
     print(data_dict.get('SpeechResult', ['']))
-    print(data_dict.get('Confidence', ['']))
+    #print(data_dict.get('Confidence', ['']))
 
     resp = VoiceResponse()
     return twilio.handle_dialog(resp)
+
+@router.post("/handle_record", response_class=HTMLResponse)
+def handle_record():
+    resp = VoiceResponse()
+    return twilio.greet_and_gather(resp)
+
