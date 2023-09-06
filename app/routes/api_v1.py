@@ -16,10 +16,8 @@ langchain = LangChainHandler(os.environ['OPENAI_API_KEY'])
 async def answer_call(request: Request):
     try:
         resp = VoiceResponse()
-        # twilio_signature = request.headers
-        # print(twilio_signature)
-        twilio.request_validator(request.url, request.body(), request.headers.get('x-twilio-signature'))
-
+        body = await request.body()
+        twilio.request_validator(request.url, body, request.headers.get('x-twilio-signature'))
         form_test = await request.form()
         print(form_test)
         return twilio.greet_and_gather(resp)
