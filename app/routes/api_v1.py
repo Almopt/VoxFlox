@@ -15,10 +15,10 @@ langchain = LangChainHandler(os.environ['OPENAI_API_KEY'])
 @router.post("/answer_call", response_class=HTMLResponse)
 async def answer_call(request: Request):
     body = await request.body()
-    print(request.url)
-    print(body.decode())
-    print(request.headers.get('x-twilio-signature'))
-    if not twilio.request_validator(request.url, body.decode(), request.headers.get('x-twilio-signature')):
+    # print(request.url)
+    # print(body.decode())
+    # print(request.headers.get('x-twilio-signature'))
+    if not twilio.request_validator(str(request.url), body.decode(), request.headers.get('x-twilio-signature')):
         raise HTTPException(status_code=403, detail='Unauthorized')
     form_test = await request.form()
     print(form_test)
