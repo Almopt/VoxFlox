@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import HTMLResponse
 from twilio.twiml.voice_response import VoiceResponse
 import os
@@ -14,12 +14,17 @@ langchain = LangChainHandler(os.environ['OPENAI_API_KEY'])
 
 @router.post("/answer_call", response_class=HTMLResponse)
 async def answer_call(request: Request):
-    resp = VoiceResponse()
-    twilio_signature = request.headers
-    print(twilio_signature)
-    form_test = await request.form()
-    print(form_test)
-    return twilio.greet_and_gather(resp)
+    try:
+        resp = VoiceResponse()
+        # twilio_signature = request.headers
+        # print(twilio_signature)
+        twilio.request_validator(request.url, request.body(), request.headers.get('x-twilio-signature'))
+
+        form_test = await request.form()
+        print(form_test)
+        return twilio.greet_and_gather(resp)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/handle-dialog", response_class=HTMLResponse)

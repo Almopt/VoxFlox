@@ -1,9 +1,18 @@
 from twilio.rest import Client
+from twilio.request_validator import RequestValidator
+from fastapi import HTTPException
 
 
 class TwilioHandler:
     def __init__(self, account_sid, auth_token):
+        self.__auth_token = auth_token
         self.client = Client(account_sid, auth_token)
+
+    def request_validator(self, request_url, request_body, twilio_signature):
+        validator = RequestValidator(self.__auth_token)
+        if not validator.validate(request_url, request_body.decode(), twilio_signature):
+            raise HTTPException(status_code=403, detail='Unauthorized')
+
 
     def greet_and_gather(self, response):
         #response.record(action='/v1/handle-record')
