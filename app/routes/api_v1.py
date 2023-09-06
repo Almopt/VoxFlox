@@ -14,7 +14,7 @@ langchain = LangChainHandler(os.environ['OPENAI_API_KEY'])
 
 @router.post("/answer_call", response_class=HTMLResponse)
 async def answer_call(request: Request):
-    try:
+    #try:
         resp = VoiceResponse()
         body = await request.body()
         print(request.url)
@@ -24,8 +24,8 @@ async def answer_call(request: Request):
         form_test = await request.form()
         print(form_test)
         return twilio.greet_and_gather(resp)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    # except Exception as e:
+    #     raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/handle-dialog", response_class=HTMLResponse)
