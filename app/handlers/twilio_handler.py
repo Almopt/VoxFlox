@@ -8,7 +8,7 @@ class TwilioHandler:
         self.__account_sid = account_sid
         self.__auth_token = auth_token
         self.client = Client(account_sid, auth_token)
-        self.__validator = RequestValidator(self.__auth_token)
+        self.__validator = RequestValidator(auth_token)
 
     def request_validator(self, request_url, request_body, twilio_signature):
         print('entrou no metodo do validator')
