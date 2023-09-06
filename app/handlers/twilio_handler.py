@@ -1,6 +1,5 @@
 from twilio.rest import Client
 from twilio.request_validator import RequestValidator
-from fastapi import HTTPException
 
 
 class TwilioHandler:
@@ -11,14 +10,12 @@ class TwilioHandler:
         self.__validator = RequestValidator(auth_token)
 
     def request_validator(self, request_url, request_body, twilio_signature):
-        print('entrou no metodo do validator')
-        print(request_url)
-        print(request_body)
-        print(twilio_signature)
-        print(self.__validator.validate(request_url, request_body, twilio_signature))
-        if not self.__validator.validate(request_url, request_body, twilio_signature):
-            print('entrou no validator')
-            raise HTTPException(status_code=403, detail='Unauthorized')
+        # print('entrou no metodo do validator')
+        # print(request_url)
+        # print(request_body)
+        # print(twilio_signature)
+        # print(self.__validator.validate(request_url, request_body, twilio_signature))
+        return self.__validator.validate(request_url, request_body, twilio_signature)
 
 
     def greet_and_gather(self, response):
