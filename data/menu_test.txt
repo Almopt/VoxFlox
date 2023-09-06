@@ -1,0 +1,151 @@
+A Pizzaria Imaginária é uma pizzaria situada na Avenida João Paulo II, Lote 1 em Portimão. Tem serviços de restaurante, take-away e de entregas. É possivel fazer reservas e encomendas através de chamada telefónica. A pizzaria Imaginária é um restaurante com 180 lugares sentados sendo que 100 têm a possiblidade de reserva prévia atráves de marcação telefónica. Podem haver trocas de ingredientes nas pizzas por um valor de 1€ por ingrediente.
+
+****Entradas****
+
+Sopa de legumes 4€
+
+Cogumelos c/alho, queijo gratinado e bacon 9,9€
+
+Camarão Amanti 11,9€
+
+Cocktail de camarão 11,9€
+
+Caprese 8,9€
+
+Melão com presunto serrano 7,9€
+
+Tábua de charcutaria Amanti 17,9€
+
+Pão de alho simples 3,8€
+
+Pão de alho com queijo 4,3€
+
+Bruschetta algarvia 9,9€
+
+Carpaccio de carne de vaca 11,5€
+
+Focaccia 16€ (Contém Base de Pizza, sal grosso, azeite, Alegrim, pressunto, lascas de permessão)
+
+Batatas Fritas 3€
+
+****Saladas****
+
+Mista 5€ (Contém alfaces variadas, cenoura, cebola, pepino, tomate e azeitonas)
+
+Atum 9€ (Contém feijão frade, tomate, ovo, cebola, pimentos, atum e azeitonas)
+
+Frango 11,9€ (Contém alfaces variadas, cenoura, frango grelhado, manga, tomate cherry e azeitonas)
+
+Tropical 11,9€ (Contém massa tricolor, cenoura, milho, maçã, frango, melão, queijo, beterraba, azeitonas e molho cocktail)
+
+César 12,9€ (Contém alface, rúcula, tomate desidratado, frango grelhado, lascas de parmesão, bacon, crocante, croutons e molho)
+
+CésarChévre 12,9€ (Contém alfaces variadas, pão torrado, queijo de cabra, tangerina, maçã, azeitonas, tomate cherry, molho de mel e citrinos)
+
+Amanti 13,9€ (Contém alfaces variadas, camarão, ovo, manga, azeitonas, molho cocktail e tomate desidratado)
+
+Nórdica 14,9€ (Contém alfaces variadas, salmão fumado, abacate, tomate cherry, lima, coentros, azeite e sementes de sésamo)
+
+****Pizzas****
+
+Prosciutto 8,5€ (Contém tomate, queijo e fiambre)
+
+Marguerita original 11,5€ (Contém tomate, mozzarella de búfala, azeite, manjericão e orégãos)
+
+Prosciutto e funghi 9€ (Contém tomate, queijo, fiambre e cogumelos)
+
+Pepperoni 10,5€ (Contém tomate, queijo e pepperoni picante)
+
+Banana prosciutto 10,5€ (Contém tomate, queijo, fiambre e banana)
+
+Monchiqueira 11€ (Contém tomate, queijo e chouriço)
+
+À caçador 14€ (Contém tomate, queijo, alheira e ovo)
+
+Bora bora 13€ (Contém tomate, queijo, fiambre, atum e ananás)
+
+Bacon 11€ (Contém tomate, queijo, bacon e cebola roxa)
+
+Abacate 15,5€ (Contém queijo Philadélphia, salmão fumado, abacate, tomate cherry e rúcula)
+
+Vau 13€ (Contém tomate, queijo, atum, cebola e azeitonas)
+
+Formaggi 11,5€ (Contém tomate e 4 queijos)
+
+Verde 11,9€ (Contém tomate, queijo, espinafres, alho e brócolos)
+
+Carbonara 13€ (Contém natas, queijo, cebola, bacon e gema de ovo)
+
+Vegetariana 13,5€ (Contém tomate, queijo, vegetais grelhados, milho e brócolos)
+
+Bolonhesa 12€ (Contém molho bolonhesa, queijo, béchamel e orégãos)
+
+Algarvia 12,9€ (Contém natas, queijo, camarão, pimentos e cebola)
+
+Amanti 14,4€ (Contém tomate, queijo, carne de vaca, pepperoni, cogumelos, pimentos, cebola roxa e orégãos)
+
+Al pesto 14€ (Contém molho pesto, mozzarella de búfala, mortadela, mangericão, tomate cherry e parmesão)
+
+Presunto 13,9€ (Contém tomate, azeite, orégãos, mozzarella de búfala, tomate desidratado, presunto serrano, azeitonas e rúcula)
+
+Barbecue 12,5€ (Contém molho barbecue, queijo, cebola roxa, frango e bacon)
+
+Caseirinha 13€ (Contém tomate, queijo, salsicha, ovo e manteiga de alho)
+
+Calzone fechada 13,6€ (Contém queijo, cogumelos, fiambre, ovo e manteiga de alho)
+
+Diávola 12,5€ (Contém tomate, queijo, pepperoni picante, azeitonas e pimentos)
+
+4 estações 12,9€ (Contém tomate, queijo, alcachofra, camarão, chouriço e cogumelos)
+
+Napolitana 12,9€ (Contém tomate, queijo, anchovas, alcachofras, limão e pimenta)
+
+Nova Dehli 14€ (Contém Caril, Queijo, Frango, Manga e salsa)
+
+****Massas****
+
+Fusilli 11€ (Contém com molho de 4 queijos)
+
+Spaghetti bolonhesa 11€ (Contém carne picada com molho de tomate)
+
+Spaghetti carbonara 11€ (Contém bacon, cebola, natas e gema de ovo)
+
+Ravioli de carne 12,5€ (Contém carne picada com molho de tomate, natas, fiambre, bacon e queijo parmesão)
+
+Ravioli vegetariana 12,5€ (Contém ricota, natas, espinafres e brócolos)
+
+Lasanha de carne 11,5€ (Contém folhas de massa fresca, béchamel, carne picada com molho de tomate e queijo gratinado)
+
+Lasanha vegetariana 11,5€ (Contém folhas de massa fresca, béchamel, molho de tomate, legumes grelhados e queijo gratinado)
+
+Cannelloni 12,5€ (Contém tubinhos de massa recheados com carne, béchamel, molho de tomate e queijo gratinado)
+
+Cannelloni vegetariano 12€ (Contém tubinhos de massa recheados com espinafres, ricota, béchamel e queijo gratinado)
+
+Tagliatelle Amanti 13,9€ (Contém camarão frito, alho, azeite, natas e queijo gratinado)
+
+Spaghetti especial Amanti 14,5€ (Contém fiambre, bacon, chouriço, cogumelos, tomate, natas e oregãos)
+
+Spaghetti com almôndegas 11,5€ (Contém molho de tomate e almôndegas)
+
+Linguini Nero 16,5€ (Contém lulinhas, camarão, vieira, mexilhão, curgete e tomate cherry)
+
+Gnochi (opção de molho à escolha) 11,5€ (Contém molho de tomate - pesto - vegetariano com espinafres e brócolos)
+
+Tagliatelle gratinado 13,6€ (Contém molho bolonhesa, cogumelos, fiambre, bacon, natas e queijo gratinado)
+
+****Risoto****
+
+Risoto ai funghi 14,9€ (Contém cogumelos)
+
+Risoto de carabineiros 25,5€ (Contém camarão carabineiro)
+
+****Carnes****
+
+Bife à portuguesa 17,5€
+
+Bife de frango com molho de cogumelos e batata gratinada 12,5€
+
+****Peixe****
+
+Salmão grelhado com legumes 15€
