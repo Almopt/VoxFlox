@@ -2,6 +2,11 @@ from twilio.rest import Client
 from twilio.request_validator import RequestValidator
 
 
+# Custom exception class for validation failure
+class TwilioValidationException(Exception):
+    def __init__(self, detail):
+        self.detail = detail
+
 class TwilioHandler:
     def __init__(self, account_sid, auth_token):
         self.__account_sid = account_sid
@@ -15,7 +20,13 @@ class TwilioHandler:
         # print(request_body)
         # print(twilio_signature)
         # print(self.__validator.validate(request_url, request_body, twilio_signature))
-        return self.__validator.validate(request_url, request_body, twilio_signature)
+        try:
+            if self.__validator.validate(request_url, request_body, twilio_signature):
+                return True
+            else:
+                raise TwilioValidationException("Twilio request validation failed")
+        except Exception as e:
+            raise TwilioValidationException(f"Twilio validation error: {str(e)}")
 
 
     def greet_and_gather(self, response):

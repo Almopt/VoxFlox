@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import HTMLResponse
 from twilio.twiml.voice_response import VoiceResponse
 import os
-from ..handlers.twilio_handler import TwilioHandler
+from ..handlers.twilio_handler import TwilioHandler, TwilioValidationException
 from ..handlers.langchain_handler import LangChainHandler
 from starlette.requests import Request
 from urllib.parse import parse_qs
@@ -17,17 +17,18 @@ async def answer_call(request: Request):
     try:
 
         body = await request.body()
-        url_test = 'https://voxflowapi.onrender.com/v1/answer_call'
         # print(request.url)
         # print(body.decode())
         # print(request.headers.get('x-twilio-signature'))
-        if not twilio.request_validator(url_test, parse_qs(body.decode()), request.headers.get('x-twilio-signature')):
+        if not twilio.request_validator(request.url, parse_qs(body.decode()), request.headers.get('x-twilio-signature')):
             raise HTTPException(status_code=403, detail='Unauthorized')
         form_test = await request.form()
         print(form_test)
         resp = VoiceResponse()
         return twilio.greet_and_gather(resp)
 
+    except TwilioValidationException as e:
+        raise HTTPException(status_code=403, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
