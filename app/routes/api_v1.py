@@ -14,17 +14,20 @@ langchain = LangChainHandler(os.environ['OPENAI_API_KEY'])
 
 @router.post("/answer_call", response_class=HTMLResponse)
 async def answer_call(request: Request):
-    body = await request.body()
-    url_test = 'https://voxflowapi.onrender.com/v1/answer_call'
-    # print(request.url)
-    # print(body.decode())
-    # print(request.headers.get('x-twilio-signature'))
-    if not twilio.request_validator(url_test, parse_qs(body.decode()), request.headers.get('x-twilio-signature')):
-        raise HTTPException(status_code=403, detail='Unauthorized')
-    form_test = await request.form()
-    print(form_test)
-    resp = VoiceResponse()
-    return twilio.greet_and_gather(resp)
+    try:
+        body = await request.body()
+        url_test = 'https://voxflowapi.onrender.com/v1/answer_call'
+        # print(request.url)
+        # print(body.decode())
+        # print(request.headers.get('x-twilio-signature'))
+        if not twilio.request_validator(url_test, parse_qs(body.decode()), request.headers.get('x-twilio-signature')):
+            raise HTTPException(status_code=403, detail='Unauthorized')
+        form_test = await request.form()
+        print(form_test)
+        resp = VoiceResponse()
+        return twilio.greet_and_gather(resp)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/handle-dialog", response_class=HTMLResponse)
