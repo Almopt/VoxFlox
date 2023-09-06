@@ -12,7 +12,11 @@ class TwilioHandler:
 
     def request_validator(self, request_url, request_body, twilio_signature):
         print('entrou no metodo do validator')
-        if not self.__validator.validate(request_url, request_body.decode(), twilio_signature):
+        print(request_url)
+        print(request_body)
+        print(twilio_signature)
+        print(self.__validator.validate(request_url, request_body, twilio_signature))
+        if not self.__validator.validate(request_url, request_body, twilio_signature):
             print('entrou no validator')
             raise HTTPException(status_code=403, detail='Unauthorized')
 
