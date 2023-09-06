@@ -17,6 +17,9 @@ async def answer_call(request: Request):
     try:
         resp = VoiceResponse()
         body = await request.body()
+        print(request.url)
+        print(body.decode())
+        print(request.headers.get('x-twilio-signature'))
         twilio.request_validator(request.url, body, request.headers.get('x-twilio-signature'))
         form_test = await request.form()
         print(form_test)
