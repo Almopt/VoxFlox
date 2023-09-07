@@ -6,8 +6,6 @@ from ..handlers.twilio_handler import TwilioHandler, TwilioValidationException
 from ..handlers.langchain_handler import LangChainHandler
 from starlette.requests import Request
 from urllib.parse import parse_qs
-from collections import OrderedDict
-import ast
 
 router = APIRouter()
 twilio = TwilioHandler(os.environ['TWILIO_ACCOUNT_SID'], os.environ['TWILIO_AUTH_TOKEN'])
@@ -19,8 +17,6 @@ async def answer_call(request: Request):
     try:
         url = 'https://voxflowapi.onrender.com/v1/answer_call'
         #body = await request.body()
-        #print(f'Url - {request.url}')
-        #print(parse_qs(body.decode()))
         twilio_signature = request.headers.get('X-Twilio-Signature')
         request_form = await request.form()
         #print(request_form)
