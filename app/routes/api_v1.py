@@ -23,12 +23,15 @@ async def answer_call(request: Request):
         signature = request.headers.get('X-Twilio-Signature')
         print(f'Signature - {signature}')
         request_form = await request.form()
+        print(request_form)
 
         # The data in string format
         data_str = str(request_form)
+        print(f'Form in string {data_str}')
 
         # Extract the content within parentheses and split it by commas
         items = data_str[data_str.find("(") + 1:data_str.rfind(")")].split(",")
+        print(items)
 
         # Initialize an empty dictionary
         data_dict = {}
@@ -44,10 +47,9 @@ async def answer_call(request: Request):
         print(sorted_dict)
 
 
-        print(request_form)
         #form_data = {key: value.strip('[]') for key, value in sorted(request_form)}
-        form_data = {key: value for key, value in sorted(request_form)}
-        print(form_data)
+        # form_data = {key: value for key, value in sorted(request_form)}
+        # print(form_data)
         # if not twilio.request_validator(request.url, parse_qs(body.decode()), request.headers.get('x-twilio-signature')):
         #     raise HTTPException(status_code=403, detail='Unauthorized')
         twilio.request_validator(request.url, request_form, request.headers.get('X-Twilio-Signature'))
