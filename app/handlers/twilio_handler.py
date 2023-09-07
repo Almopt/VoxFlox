@@ -14,21 +14,22 @@ class TwilioHandler:
         self.client = Client(account_sid, auth_token)
         self.__validator = RequestValidator(auth_token)
 
-    def request_validator(self, request_url, request_body, twilio_signature):
-        print('entrou no metodo do validator')
-        # print(request_url)
-        # print(request_body)
-        # print(twilio_signature)
-        # print(self.__validator.validate(request_url, request_body, twilio_signature))
-        try:
-            if self.__validator.validate(request_url, request_body, twilio_signature):
-                print('correu bem')
-                return True
-            else:
-                print('correu mal')
-                raise TwilioValidationException("Twilio request validation failed")
-        except Exception as e:
-            raise TwilioValidationException(f"Twilio validation error: {str(e)}")
+    def request_validator(self, request_url, request_form, twilio_signature):
+        # Convert the form data into a dictionary
+        parameters = {key: value for key, value in request_form.items()}
+
+        return self.__validator.validate(request_url, request_form, twilio_signature)
+
+
+        # try:
+        #     if self.__validator.validate(request_url, request_body, twilio_signature):
+        #         print('correu bem')
+        #         return True
+        #     else:
+        #         print('correu mal')
+        #         raise TwilioValidationException("Twilio request validation failed")
+        # except Exception as e:
+        #     raise TwilioValidationException(f"Twilio validation error: {str(e)}")
 
 
     def greet_and_gather(self, response):

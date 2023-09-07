@@ -14,32 +14,21 @@ langchain = LangChainHandler(os.environ['OPENAI_API_KEY'])
 
 @router.post("/answer_call", response_class=HTMLResponse)
 async def answer_call(request: Request):
-    try:
-        url = 'https://voxflowapi.onrender.com/v1/answer_call'
-        #body = await request.body()
-        twilio_signature = request.headers.get('X-Twilio-Signature')
-        request_form = await request.form()
-        #print(request_form)
+    #try:
+    url = 'https://voxflowapi.onrender.com/v1/answer_call'
+    #body = await request.body()
+    twilio_signature = request.headers.get('X-Twilio-Signature')
+    request_form = await request.form()
 
-        # Convert the form data into a dictionary
-        parameters = {key: value for key, value in request_form.items()}
+    if not twilio.request_validator(url, request_form, twilio_signature):
+        raise HTTPException(status_code=403, detail="Twilio Validation Error")
+    resp = VoiceResponse()
+    return twilio.greet_and_gather(resp)
 
-        print(parameters)
-
-
-        #form_data = {key: value.strip('[]') for key, value in sorted(request_form)}
-        # form_data = {key: value for key, value in sorted(request_form)}
-        # print(form_data)
-        # if not twilio.request_validator(request.url, parse_qs(body.decode()), request.headers.get('x-twilio-signature')):
-        #     raise HTTPException(status_code=403, detail='Unauthorized')
-        twilio.request_validator(url, parameters, twilio_signature)
-        resp = VoiceResponse()
-        return twilio.greet_and_gather(resp)
-
-    except TwilioValidationException as e:
-        raise HTTPException(status_code=403, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    # except TwilioValidationException as e:
+    #     raise HTTPException(status_code=403, detail=str(e))
+    # except Exception as e:
+    #     raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/handle-dialog", response_class=HTMLResponse)
