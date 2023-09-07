@@ -21,19 +21,7 @@ class TwilioHandler:
         return self.__validator.validate(request_url, request_form, twilio_signature)
 
 
-        # try:
-        #     if self.__validator.validate(request_url, request_body, twilio_signature):
-        #         print('correu bem')
-        #         return True
-        #     else:
-        #         print('correu mal')
-        #         raise TwilioValidationException("Twilio request validation failed")
-        # except Exception as e:
-        #     raise TwilioValidationException(f"Twilio validation error: {str(e)}")
-
-
     def greet_and_gather(self, response):
-        #response.record(action='/v1/handle-record')
         with response.gather(input='speech', action='/v1/handle-dialog', speechTimeout='1.5',
                              speech_model='experimental_conversations', language='pt-PT') as gather:
             gather.say(message='Olá! Bem-vindo á Pizzaria Imaginária, em que posso ajudá-lo?', language='pt-PT')

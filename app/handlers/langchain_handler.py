@@ -1,11 +1,20 @@
 from langchain.chains import RetrievalQA
 from langchain.document_loaders import TextLoader
-from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationSummaryMemory
+from langchain.document_loaders import UnstructuredPDFLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.vectorstores import Pinecone
+from langchain.embeddings.openai import OpenAIEmbeddings
+import pinecone
+
 
 class LangChainHandler:
-    def __init__(self, openai_api_key):
+    def __init__(self, openai_api_key, pinecode_api_key, pinecode_api_env):
+        self.__open_api_key = openai_api_key
+        pinecone.init(api_key=pinecode_api_key, environment=pinecode_api_env)  # Initialize PineCode
+        #Create Embeddings of your documents to get ready for semantic search
+        self.__embeddings = OpenAIEmbeddings(openai_api_key=self.__open_api_key)
         self.__llm = ChatOpenAI(temperature='0.2', openai_api_key=openai_api_key)
         self.__memory = ConversationSummaryMemory(llm=self.__llm)
         self.__template = """
@@ -29,3 +38,20 @@ class LangChainHandler:
             
             Please answer nicely.
         """
+
+    async def load_doc(self, file):
+
+        # Load the file data
+        loader = UnstructuredPDFLoader(file)
+        data = loader.load()
+
+        # Chunk data up into smaller documents
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
+        texts = text_splitter.split_documents(data)
+
+        # Metadata
+        meta = [{'company': 'amanti'}]
+
+        Pinecone.from_texts([t.page_content for t in texts], self.__embeddings, metadatas=meta
+                            , index_name='voxflowv01')
+
