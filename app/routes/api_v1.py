@@ -17,23 +17,18 @@ langchain = LangChainHandler(os.environ['OPENAI_API_KEY'])
 @router.post("/answer_call", response_class=HTMLResponse)
 async def answer_call(request: Request):
     try:
-
+        url = 'https://voxflowapi.onrender.com/v1/answer_call'
         #body = await request.body()
-        print(f'Url - {request.url}')
+        #print(f'Url - {request.url}')
         #print(parse_qs(body.decode()))
-        signature = request.headers.get('X-Twilio-Signature')
-        print(f'Signature - {signature}')
+        twilio_signature = request.headers.get('X-Twilio-Signature')
         request_form = await request.form()
-        print(request_form)
+        #print(request_form)
 
-        # Create an empty dictionary to store form data
-        form_data_dict = {}
+        # Convert the form data into a dictionary
+        parameters = {key: value for key, value in request_form.items()}
 
-        # Assuming the form data is sent via a POST request
-        for key, value in request_form.items():
-            form_data_dict[key] = value
-
-        print(form_data_dict)
+        print(parameters)
 
 
         #form_data = {key: value.strip('[]') for key, value in sorted(request_form)}
@@ -41,7 +36,7 @@ async def answer_call(request: Request):
         # print(form_data)
         # if not twilio.request_validator(request.url, parse_qs(body.decode()), request.headers.get('x-twilio-signature')):
         #     raise HTTPException(status_code=403, detail='Unauthorized')
-        twilio.request_validator(request.url, form_data_dict, request.headers.get('X-Twilio-Signature'))
+        twilio.request_validator(url, parameters, twilio_signature)
         resp = VoiceResponse()
         return twilio.greet_and_gather(resp)
 
