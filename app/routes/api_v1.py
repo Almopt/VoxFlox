@@ -12,7 +12,7 @@ from pydantic import BaseModel
 
 router = APIRouter()
 twilio = TwilioHandler(os.environ['TWILIO_ACCOUNT_SID'], os.environ['TWILIO_AUTH_TOKEN'])
-langchain = LangChainHandler(os.environ['OPENAI_API_KEY'])
+langchain = LangChainHandler(os.environ['OPENAI_API_KEY'], os.environ['PINECODE_API_KEY'], os.environ['PINECODE_API_ENV'])
 SUPABASE_URL = os.environ['SUPABASE_URL']
 SUPABASE_KEY = os.environ['SUPABASE_KEY']
 JWT_SECRET = os.environ['JWT_SECRET']
