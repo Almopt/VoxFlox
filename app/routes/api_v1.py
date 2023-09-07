@@ -17,15 +17,16 @@ async def answer_call(request: Request):
     try:
 
         body = await request.body()
-        print(request.url)
-        print(parse_qs(body.decode()))
-        print(request.headers.get('X-Twilio-Signature'))
+        print(f'Url - {request.url}')
+        #print(parse_qs(body.decode()))
+        signature = request.headers.get('X-Twilio-Signature')
+        print(f'Signature - {signature}')
         request_form = await request.form()
-        form_data = {key: value.strip('[]') for key, value in sorted(request_form)}
-        print(form_data)
+        #form_data = {key: value.strip('[]') for key, value in sorted(request_form)}
+        print(request_form)
         # if not twilio.request_validator(request.url, parse_qs(body.decode()), request.headers.get('x-twilio-signature')):
         #     raise HTTPException(status_code=403, detail='Unauthorized')
-        twilio.request_validator(request.url, form_data, request.headers.get('X-Twilio-Signature'))
+        twilio.request_validator(request.url, request_form, request.headers.get('X-Twilio-Signature'))
         resp = VoiceResponse()
         return twilio.greet_and_gather(resp)
 
