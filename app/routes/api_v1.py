@@ -6,7 +6,7 @@ import supabase
 import jwt
 from ..handlers.twilio_handler import TwilioHandler
 from ..handlers.langchain_handler import LangChainHandler
-from ..handlers.supabase_handler import Supabase_Handler
+from ..handlers.supabasehandler import SupabaseHandler
 from starlette.requests import Request
 from urllib.parse import parse_qs
 from pydantic import BaseModel
@@ -14,7 +14,7 @@ from pydantic import BaseModel
 router = APIRouter()
 twilio = TwilioHandler(os.environ['TWILIO_ACCOUNT_SID'], os.environ['TWILIO_AUTH_TOKEN'])
 langchain = LangChainHandler(os.environ['OPENAI_API_KEY'], os.environ['PINECODE_API_KEY'], os.environ['PINECODE_API_ENV'])
-db = Supabase_Handler(os.environ['SUPABASE_URL'], os.environ['SUPABASE_KEY'])
+db = SupabaseHandler(os.environ['SUPABASE_URL'], os.environ['SUPABASE_KEY'])
 JWT_SECRET = os.environ['JWT_SECRET']
 
 
