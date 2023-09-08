@@ -56,6 +56,7 @@ async def answer_call(request: Request):
     resp = VoiceResponse()
     return twilio.greet_and_gather(resp)
 
+
 @router.post("/handle-dialog", response_class=HTMLResponse)
 async def handle_dialog(request: Request):
     body = await request.body()
@@ -93,7 +94,7 @@ async def upload_file(file: UploadFile, current_user: dict = Depends(validate_jw
     validate_file_type(file)
 
     # Get user info by ID
-    user_info = db.get_user_by_id(current_user.get('sub'))
+    user_info = await db.get_user_by_id(current_user.get('sub'))
 
     # Load file into Vector DB
     #langchain.load_doc(file, user_info)
