@@ -82,9 +82,10 @@ async def handle_dialog(request_data: SignInRequest):
     # Create a dictionary with email and password
     user_credentials = {"email": request_data.email, "password": request_data.password}
     signin_data = supabase_client.auth.sign_in_with_password(user_credentials)
-    print(f'SignIn Raw Data - {signin_data}')
-    access_token = signin_data["session"]["access_token"]
-    print(f'Acess Token {access_token}')
+    print(f'SignIn User Data - {signin_data.user}')
+    print(f'SignIn Session Data - {signin_data.session}')
+    access_token = signin_data.session.access_token
+    print(f'Access Token {access_token}')
 
     #test2 = supabase_client.auth.get_user()
     #print(test2)
