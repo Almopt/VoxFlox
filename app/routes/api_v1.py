@@ -29,7 +29,7 @@ class SignInRequest(BaseModel):
 def validate_jwt(token: str):
     try:
         print(f'Token to validate {token}')
-        payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'], verify=True)
+        payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'], audience='authenticated')
         print(payload)
         # Optionally, you can add additional validation logic here, such as checking the token's expiration (exp) or custom claims
         return payload
