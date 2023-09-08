@@ -39,7 +39,7 @@ class LangChainHandler:
             Please answer nicely.
         """
 
-    async def load_doc(self, file):
+    def load_doc(self, file, company_name):
 
         # Load the file data
         loader = UnstructuredPDFLoader(file)
@@ -50,7 +50,7 @@ class LangChainHandler:
         texts = text_splitter.split_documents(data)
 
         # Metadata
-        meta = [{'company': 'amanti'}]
+        meta = [{'company': company_name}]
 
         Pinecone.from_texts([t.page_content for t in texts], self.__embeddings, metadatas=meta
                             , index_name='voxflowv01')

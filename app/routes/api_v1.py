@@ -6,6 +6,7 @@ import supabase
 import jwt
 from ..handlers.twilio_handler import TwilioHandler
 from ..handlers.langchain_handler import LangChainHandler
+from ..handlers.supabase_handler import Supabase_Handler
 from starlette.requests import Request
 from urllib.parse import parse_qs
 from pydantic import BaseModel
@@ -13,10 +14,8 @@ from pydantic import BaseModel
 router = APIRouter()
 twilio = TwilioHandler(os.environ['TWILIO_ACCOUNT_SID'], os.environ['TWILIO_AUTH_TOKEN'])
 langchain = LangChainHandler(os.environ['OPENAI_API_KEY'], os.environ['PINECODE_API_KEY'], os.environ['PINECODE_API_ENV'])
-SUPABASE_URL = os.environ['SUPABASE_URL']
-SUPABASE_KEY = os.environ['SUPABASE_KEY']
+db = Supabase_Handler(os.environ['SUPABASE_URL'], os.environ['SUPABASE_KEY'])
 JWT_SECRET = os.environ['JWT_SECRET']
-supabase_client = supabase.Client(SUPABASE_URL, SUPABASE_KEY)
 
 
 # Pydantic model for the request body
@@ -28,22 +27,14 @@ class SignInRequest(BaseModel):
 # Function to validate JWT tokens
 def validate_jwt(token: str):
     try:
-        print(f'Token to validate {token}')
-        payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'], audience='authenticated')
-        print(payload)
+        #print(f'Token to validate {token}')
+        #payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'], audience='authenticated')
+        return jwt.decode(token, JWT_SECRET, algorithms=['HS256'], audience='authenticated')
         # Optionally, you can add additional validation logic here, such as checking the token's expiration (exp) or custom claims
-        return payload
     except jwt.ExpiredSignatureError as error:
         raise HTTPException(status_code=401, detail=f'{error}')
     except jwt.InvalidTokenError as error:
         raise HTTPException(status_code=401, detail=f'Invalid Token - {error}')
-
-
-# Function to get the current user based on the JWT token
-# async def get_current_user(token: str = Depends(validate_jwt)):
-#     if token is None:
-#         raise HTTPException(status_code=401, detail="Not authenticated")
-#     return token  # You can return the token or extract user information from it
 
 
 def validate_file_type(file: UploadFile):
@@ -81,8 +72,8 @@ async def handle_dialog(request: Request):
 def handle_dialog(request_data: SignInRequest):
     # Create a dictionary with email and password
     user_credentials = {"email": request_data.email, "password": request_data.password}
-    signin_data = supabase_client.auth.sign_in_with_password(user_credentials)
-    supabase_client.auth.get_user()
+    #signin_data = supabase_client.auth.sign_in_with_password(user_credentials)
+    signin_data = db.sign_in_with_password(user_credentials)
     #print(f'SignIn User Data - {signin_data.user}')
     #print(f'SignIn Session Data - {signin_data.session}')
     access_token = signin_data.session.access_token
@@ -93,7 +84,6 @@ def handle_dialog(request_data: SignInRequest):
 
 @router.post("/uploadFile")
 async def upload_file(file: UploadFile, current_user: dict = Depends(validate_jwt)):
-    print('Entrou no metodo do upload')
 
     # Check if the user is authenticated (JWT validation was successful)
     if current_user is None:
@@ -102,13 +92,15 @@ async def upload_file(file: UploadFile, current_user: dict = Depends(validate_jw
     # Validate the file type
     validate_file_type(file)
 
-    print(current_user)
+    # Get user info by ID
+    user_info = db.get_user_by_id(current_user.get('sub'))
+
+    # Load file into Vector DB
+    #langchain.load_doc(file, user_info)
+
+    print(user_info)
 
     # Return a success message
-    return JSONResponse(content={"message": "File uploaded successfully"})
+    return JSONResponse(content={"message": "File uploaded with success"})
 
-@router.post("/handle_record", response_class=HTMLResponse)
-def handle_record():
-    resp = VoiceResponse()
-    return twilio.greet_and_gather(resp)
 
