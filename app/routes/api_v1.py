@@ -29,14 +29,15 @@ class SignInRequest(BaseModel):
 def validate_jwt(token: str):
     try:
         print(f'Token to validate {token}')
-        payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256", ])
+        print(JWT_SECRET)
+        payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
         print(payload)
         # Optionally, you can add additional validation logic here, such as checking the token's expiration (exp) or custom claims
         return payload
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Expired Signature")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid Token")
+    except jwt.ExpiredSignatureError as error:
+        raise HTTPException(status_code=401, detail=f'{error}')
+    except jwt.InvalidTokenError as error:
+        raise HTTPException(status_code=401, detail=f'Invalid Token - {error}')
 
 
 # Function to get the current user based on the JWT token
@@ -82,13 +83,10 @@ def handle_dialog(request_data: SignInRequest):
     # Create a dictionary with email and password
     user_credentials = {"email": request_data.email, "password": request_data.password}
     signin_data = supabase_client.auth.sign_in_with_password(user_credentials)
-    print(f'SignIn User Data - {signin_data.user}')
-    print(f'SignIn Session Data - {signin_data.session}')
+    #print(f'SignIn User Data - {signin_data.user}')
+    #print(f'SignIn Session Data - {signin_data.session}')
     access_token = signin_data.session.access_token
     print(f'Access Token {access_token}')
-
-    #test2 = supabase_client.auth.get_user()
-    #print(test2)
 
     return JSONResponse(content={"message": "Sign In Sucessful"})
 
