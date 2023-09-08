@@ -31,6 +31,7 @@ def validate_jwt(token: str):
     try:
         print('Vai tentar fazer oi decode do token')
         payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+        print(payload)
         # Optionally, you can add additional validation logic here, such as checking the token's expiration (exp) or custom claims
         return payload
     except jwt.ExpiredSignatureError:
@@ -81,14 +82,14 @@ async def handle_dialog(request: Request):
 async def handle_dialog(request_data: SignInRequest):
     # Create a dictionary with email and password
     user_credentials = {"email": request_data.email, "password": request_data.password}
-    signin_data = await supabase_client.auth.sign_in_with_password(user_credentials)
+    signin_data = supabase_client.auth.sign_in_with_password(user_credentials)
     print(f'SignIn Raw Data - {signin_data}')
     data_json = json.loads(signin_data)
     print(f'SignIn Json Data - {signin_data}')
     token = data_json.get('access_token')
     print(f'Acess Token {token}')
 
-    test2 = supabase_client.auth.get_user()
+    #test2 = supabase_client.auth.get_user()
     #print(test2)
 
     return JSONResponse(content={"message": "Sign In Sucessful"})
