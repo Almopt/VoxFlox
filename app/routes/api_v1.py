@@ -29,8 +29,7 @@ class SignInRequest(BaseModel):
 def validate_jwt(token: str):
     try:
         print(f'Token to validate {token}')
-        print(JWT_SECRET)
-        payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+        payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'], verify=True)
         print(payload)
         # Optionally, you can add additional validation logic here, such as checking the token's expiration (exp) or custom claims
         return payload
@@ -83,6 +82,7 @@ def handle_dialog(request_data: SignInRequest):
     # Create a dictionary with email and password
     user_credentials = {"email": request_data.email, "password": request_data.password}
     signin_data = supabase_client.auth.sign_in_with_password(user_credentials)
+    supabase_client.auth.get_user()
     #print(f'SignIn User Data - {signin_data.user}')
     #print(f'SignIn Session Data - {signin_data.session}')
     access_token = signin_data.session.access_token
