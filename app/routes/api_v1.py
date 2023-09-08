@@ -4,7 +4,6 @@ from twilio.twiml.voice_response import VoiceResponse
 import os
 import supabase
 import jwt
-import json
 from ..handlers.twilio_handler import TwilioHandler
 from ..handlers.langchain_handler import LangChainHandler
 from starlette.requests import Request
@@ -84,10 +83,8 @@ async def handle_dialog(request_data: SignInRequest):
     user_credentials = {"email": request_data.email, "password": request_data.password}
     signin_data = supabase_client.auth.sign_in_with_password(user_credentials)
     print(f'SignIn Raw Data - {signin_data}')
-    data_json = json.loads(signin_data)
-    print(f'SignIn Json Data - {signin_data}')
-    token = data_json.get('access_token')
-    print(f'Acess Token {token}')
+    access_token = signin_data["session"]["access_token"]
+    print(f'Acess Token {access_token}')
 
     #test2 = supabase_client.auth.get_user()
     #print(test2)
