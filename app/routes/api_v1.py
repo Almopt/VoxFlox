@@ -28,8 +28,8 @@ class SignInRequest(BaseModel):
 # Function to validate JWT tokens
 def validate_jwt(token: str):
     try:
-        print('Vai tentar fazer oi decode do token')
-        payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+        print(f'Token to validate {token}')
+        payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256", ])
         print(payload)
         # Optionally, you can add additional validation logic here, such as checking the token's expiration (exp) or custom claims
         return payload
@@ -78,7 +78,7 @@ async def handle_dialog(request: Request):
 
 
 @router.post("/signintest")
-async def handle_dialog(request_data: SignInRequest):
+def handle_dialog(request_data: SignInRequest):
     # Create a dictionary with email and password
     user_credentials = {"email": request_data.email, "password": request_data.password}
     signin_data = supabase_client.auth.sign_in_with_password(user_credentials)
