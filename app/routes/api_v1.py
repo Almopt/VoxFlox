@@ -28,22 +28,21 @@ class SignInRequest(BaseModel):
 # Function to validate JWT tokens
 def validate_jwt(token: str):
     try:
+        print('Vai tentar fazer oi decode do token')
         payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
         # Optionally, you can add additional validation logic here, such as checking the token's expiration (exp) or custom claims
         return payload
     except jwt.ExpiredSignatureError:
-        # Handle token expiration
-        return None
+        raise HTTPException(status_code=401, detail="Expired Signature")
     except jwt.InvalidTokenError:
-        # Handle invalid token
-        return None
+        raise HTTPException(status_code=401, detail="Invalid Token")
 
 
 # Function to get the current user based on the JWT token
-async def get_current_user(token: str = Depends(validate_jwt)):
-    if token is None:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    return token  # You can return the token or extract user information from it
+# async def get_current_user(token: str = Depends(validate_jwt)):
+#     if token is None:
+#         raise HTTPException(status_code=401, detail="Not authenticated")
+#     return token  # You can return the token or extract user information from it
 
 
 def validate_file_type(file: UploadFile):
@@ -76,20 +75,23 @@ async def handle_dialog(request: Request):
     resp = VoiceResponse()
     return twilio.handle_dialog(resp)
 
+
 @router.post("/signintest")
-async def handle_dialog(request_data: SignInRequest):
+def handle_dialog(request_data: SignInRequest):
     # Create a dictionary with email and password
     user_credentials = {"email": request_data.email, "password": request_data.password}
     test1 = supabase_client.auth.sign_in_with_password(user_credentials)
-    print(test1)
+    print(test1.session['access_token'])
+
     test2 = supabase_client.auth.get_user()
-    print(test2)
+    #print(test2)
 
     return JSONResponse(content={"message": "Hey hey"})
 
 
 @router.post("/uploadFile")
-async def upload_file(file: UploadFile, current_user: dict = Depends(get_current_user)):
+async def upload_file(file: UploadFile, current_user: dict = Depends(validate_jwt)):
+    print('Entrou no metodo do upload')
 
     # Check if the user is authenticated (JWT validation was successful)
     if current_user is None:
