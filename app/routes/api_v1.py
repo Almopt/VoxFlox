@@ -81,7 +81,7 @@ def handle_dialog(request_data: SignInRequest):
     # Create a dictionary with email and password
     user_credentials = {"email": request_data.email, "password": request_data.password}
     test1 = supabase_client.auth.sign_in_with_password(user_credentials)
-    print(test1)
+    print(f'SignIn - {test1}')
 
     test2 = supabase_client.auth.get_user()
     #print(test2)
