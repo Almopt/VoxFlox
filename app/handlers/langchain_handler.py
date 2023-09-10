@@ -40,6 +40,7 @@ class LangChainHandler:
         """
 
     def load_doc(self, file, company_name):
+        print(file)
 
         # Load the file data
         loader = UnstructuredPDFLoader(file)
