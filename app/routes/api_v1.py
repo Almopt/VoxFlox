@@ -95,7 +95,7 @@ async def upload_file(file: UploadFile, current_user: dict = Depends(validate_jw
 
     # Get user info by ID
     user_info = await db.get_user_by_id(current_user.get('sub'))
-    print(user_info.data['RestaurantName'])
+    print(user_info.data)
 
     # Load file into Vector DB
     #langchain.load_doc(file, user_info)
