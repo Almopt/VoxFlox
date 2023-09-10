@@ -10,6 +10,4 @@ class SupabaseHandler:
         return self.__client.auth.sign_in_with_password(user_credentials)
 
     async def get_user_by_id(self, userid):
-        data = self.__client.table('Users').select('*').eq('id', str(userid)).execute()
-        print(data.data)
-        return data
+        return self.__client.table('Users').select('*').eq('id', userid).execute()
