@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException, File, UploadFile, Depends
 from fastapi.responses import HTMLResponse, JSONResponse
 from twilio.twiml.voice_response import VoiceResponse
 import os
-import supabase
 import jwt
 from ..handlers.twilio_handler import TwilioHandler
 from ..handlers.langchain_handler import LangChainHandler
@@ -96,11 +95,11 @@ async def upload_file(file: UploadFile, current_user: dict = Depends(validate_jw
     # Get user info by ID
     user_info = await db.get_user_by_id(current_user.get('sub'))
 
-    file_content = await file.read()
-    print(file.filename)
+    #file_content = await file.read()
+    #print(file.filename)
 
     # Load file into Vector DB
-    #langchain.load_doc(file_content, user_info.data[0].get('RestaurantName'))
+    langchain.load_doc(file, user_info.data[0].get('RestaurantName'))
 
     # Return a success message
     return JSONResponse(content={"message": "File uploaded with success"})

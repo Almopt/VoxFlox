@@ -7,6 +7,8 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Pinecone
 from langchain.embeddings.openai import OpenAIEmbeddings
 import pinecone
+import tempfile
+import os
 
 
 class LangChainHandler:
@@ -39,20 +41,30 @@ class LangChainHandler:
             Please answer nicely.
         """
 
-    def load_doc(self, file, company_name):
-        #print(file.filename)
+    async def load_doc(self, file, company_name):
 
-        # Load the file data
-        loader = UnstructuredPDFLoader(file)
-        data = loader.load()
+        file_content = await file.read()
 
-        # Chunk data up into smaller documents
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
-        texts = text_splitter.split_documents(data)
+        # Create a temporary file
+        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+            temp_file.write(file_content)
+            temp_file_path = temp_file.name
 
-        # Metadata
-        meta = [{'company': company_name}]
+        try:
+            # Load the file data
+            loader = UnstructuredPDFLoader(temp_file_path)
+            data = loader.load()
 
-        Pinecone.from_texts([t.page_content for t in texts], self.__embeddings, metadatas=meta
-                            , index_name='voxflowv01')
+            # Chunk data up into smaller documents
+            text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
+            texts = text_splitter.split_documents(data)
+
+            # Metadata
+            meta = [{'company': company_name}]
+
+            Pinecone.from_texts([t.page_content for t in texts], self.__embeddings, metadatas=meta
+                                , index_name='voxflowv01')
+        finally:
+            # Clean up the temporary file
+            os.remove(temp_file_path)
 
