@@ -62,7 +62,7 @@ class LangChainHandler:
             # Metadata
             meta = [{'company': company_name}]
 
-            Pinecone.from_texts([t.page_content for t in texts], self.__embeddings, metadatas=meta
+            Pinecone.from_texts([t.page_content for t in texts], self.__embeddings, metadatas=meta * len(texts)
                                 , index_name='voxflowv01')
         finally:
             # Clean up the temporary file
