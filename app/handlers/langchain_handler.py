@@ -68,3 +68,25 @@ class LangChainHandler:
             # Clean up the temporary file
             os.remove(temp_file_path)
 
+    def get_response(self, company_name):
+
+        metadata_filter = {
+            "company": {"$eq": company_name},
+        }
+
+        vectorstore = Pinecone.from_existing_index(index_name='voxflowv01', embedding=self.__embeddings)
+
+        query = 'where is the restaurant located?'
+        docs = vectorstore.similarity_search(
+            query,  # our search query
+            k=3,  # return 3 most relevant docs
+            filter=metadata_filter
+        )
+
+        print(docs)
+
+
+
+
+
+
