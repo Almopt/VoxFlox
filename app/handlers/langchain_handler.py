@@ -74,7 +74,10 @@ class LangChainHandler:
             "company": {"$eq": company_name},
         }
 
-        vectorstore = Pinecone.from_existing_index(index_name='voxflowv01', embedding=self.__embeddings)
+        index = pinecone.Index("voxflowv01")
+        print(index.describe_index_stats())
+
+        vectorstore = Pinecone('voxflowv01', self.__embeddings.embed_query(), 'text')
 
         query = 'where is the restaurant located?'
         docs = vectorstore.similarity_search(
