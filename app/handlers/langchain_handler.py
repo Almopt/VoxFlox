@@ -70,9 +70,11 @@ class LangChainHandler:
 
     def get_response(self, company_name):
 
-        # metadata_filter = {
-        #     "company": {"$eq": company_name},
-        # }
+        print(company_name)
+
+        metadata_filter = {
+            "company": {"$eq": company_name},
+        }
 
         index = pinecone.Index("voxflowv01")
         print(index.describe_index_stats())
@@ -82,8 +84,9 @@ class LangChainHandler:
         query = 'Onde se situa o restaurante?'
         docs = vectorstore.similarity_search(
             query,  # our search query
-            k=3  # return 3 most relevant docs
-            #filter=metadata_filter
+            k=3,  # return 3 most relevant docs
+            filter=metadata_filter,
+            include_metadata=True
         )
 
         print(docs)
