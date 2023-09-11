@@ -82,8 +82,8 @@ class LangChainHandler:
         query = 'Onde se situa o restaurante?'
         docs = vectorstore.similarity_search(
             query,  # our search query
-            k=3,  # return 3 most relevant docs
-            filter=metadata_filter
+            k=3  # return 3 most relevant docs
+            #filter=metadata_filter
         )
 
         print(docs)
