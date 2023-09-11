@@ -99,8 +99,8 @@ async def upload_file(file: UploadFile, current_user: dict = Depends(validate_jw
     #print(file.filename)
 
     # Load file into Vector DB
-    #await langchain.load_doc(file, user_info.data[0].get('RestaurantName'))
-    langchain.get_response(current_user.get('sub'))
+    await langchain.load_doc(file, user_info.data[0].get('RestaurantName'))
+    #langchain.get_response(current_user.get('sub'))
 
     # Return a success message
     return JSONResponse(content={"message": "File uploaded with success"})

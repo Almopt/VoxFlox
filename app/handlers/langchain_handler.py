@@ -14,9 +14,16 @@ import os
 class LangChainHandler:
     def __init__(self, openai_api_key, pinecode_api_key, pinecode_api_env):
         self.__open_api_key = openai_api_key
-        pinecone.init(api_key=pinecode_api_key, environment=pinecode_api_env)  # Initialize PineCode
+
+        # Initialize PineCode
+        pinecone.init(api_key=pinecode_api_key, environment=pinecode_api_env)
+
         #Create Embeddings of your documents to get ready for semantic search
         self.__embeddings = OpenAIEmbeddings(openai_api_key=self.__open_api_key)
+
+        #Pinecode Index
+        self.__index = pinecone.Index("voxflowv1")
+
         self.__llm = ChatOpenAI(temperature='0.2', openai_api_key=openai_api_key)
         self.__memory = ConversationSummaryMemory(llm=self.__llm)
         self.__template = """
@@ -54,16 +61,18 @@ class LangChainHandler:
             # Load the file data
             loader = UnstructuredPDFLoader(temp_file_path)
             data = loader.load()
+            print(data)
 
             # Chunk data up into smaller documents
-            text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
+            text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
             texts = text_splitter.split_documents(data)
+            print(texts)
 
             # Metadata
-            meta = [{'company': company_name}]
+            #meta = [{'company': company_name}]
 
-            Pinecone.from_texts([t.page_content for t in texts], self.__embeddings, metadatas=meta * len(texts)
-                                , index_name='voxflowv01')
+            #Pinecone.from_texts([t.page_content for t in texts], self.__embeddings, metadatas=meta * len(texts)
+            #                    , index_name='voxflowv01')
         finally:
             # Clean up the temporary file
             os.remove(temp_file_path)
@@ -76,23 +85,34 @@ class LangChainHandler:
             "company": {"$eq": company_name},
         }
 
-        index = pinecone.Index("voxflowv01")
-        print(index.describe_index_stats())
+        # index = pinecone.Index("voxflowv01")
+        # print(index.describe_index_stats())
 
-        vectorstore = Pinecone(index, self.__embeddings.embed_query, 'text')
+        vectorstore = Pinecone(self.__index, self.__embeddings.embed_query, 'text')
 
-        query = 'Onde se situa o restaurante?'
+        query = 'Quais as pizzas que têm fiambre?'
         docs = vectorstore.similarity_search(
             query,  # our search query
             k=3,  # return 3 most relevant docs
             filter=metadata_filter,
-            include_metadata=True
         )
 
         print(docs)
 
+    def delete_items(self):
+
+        self.__index.delete()
 
 
 
+
+
+
+# if __name__ == "__main__":
+#     lang = LangChainHandler('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',
+#                             '88f45129-5d59-47c7-98b7-aaa43fa128de',
+#                             'gcp-starter')
+#     #lang.get_response('Pizzaria Amanti')
+#     lang.delete_items()
 
 
