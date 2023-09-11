@@ -12,7 +12,7 @@ import os
 
 
 class LangChainHandler:
-    def __init__(self, openai_api_key, pinecode_api_key, pinecode_api_env):
+    def __init__(self, openai_api_key, pinecode_api_key, pinecode_api_env, pinecode_index):
         self.__open_api_key = openai_api_key
 
         # Initialize PineCode
@@ -21,8 +21,11 @@ class LangChainHandler:
         #Create Embeddings of your documents to get ready for semantic search
         self.__embeddings = OpenAIEmbeddings(openai_api_key=self.__open_api_key)
 
+        #Pinecode Index Name
+        self.__index_name = pinecode_index
+
         #Pinecode Index
-        self.__index = pinecone.Index("voxflowv1")
+        self.__index = pinecone.Index(pinecode_index)
 
         self.__llm = ChatOpenAI(temperature='0.2', openai_api_key=openai_api_key)
         self.__memory = ConversationSummaryMemory(llm=self.__llm)
@@ -70,23 +73,40 @@ class LangChainHandler:
 
             # Metadata
             #meta = [{'company': company_name}]
+            metadata = [{'company': company_name} for _ in texts]
 
-            #Pinecone.from_texts([t.page_content for t in texts], self.__embeddings, metadatas=meta * len(texts)
-            #                    , index_name='voxflowv01')
+            Pinecone.from_texts([t.page_content for t in texts], self.__embeddings, metadatas=metadata
+                                , index_name=self.__index_name)
         finally:
             # Clean up the temporary file
             os.remove(temp_file_path)
 
+    def load_doc_local(self):
+        # Load the file data
+        loader = UnstructuredPDFLoader('/Users/alexmorg/PycharmProjects/FirstAIProject/docs/menu_test.pdf')
+        data = loader.load()
+        print(data)
+
+        # Chunk data up into smaller documents
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+        texts = text_splitter.split_documents(data)
+        print(texts)
+
+        # Metadata
+        metadata = [{'company': 'Pizzaria Amanti'} for _ in texts]
+        print(metadata)
+
+        Pinecone.from_texts([t.page_content for t in texts], self.__embeddings, metadatas=metadata
+                            , index_name=self.__index_name)
+
     def get_response(self, company_name):
 
-        print(company_name)
 
         metadata_filter = {
             "company": {"$eq": company_name},
         }
 
-        # index = pinecone.Index("voxflowv01")
-        # print(index.describe_index_stats())
+        print(self.__index.describe_index_stats())
 
         vectorstore = Pinecone(self.__index, self.__embeddings.embed_query, 'text')
 
@@ -94,25 +114,10 @@ class LangChainHandler:
         docs = vectorstore.similarity_search(
             query,  # our search query
             k=3,  # return 3 most relevant docs
-            filter=metadata_filter,
+            filter=metadata_filter
         )
 
         print(docs)
 
-    def delete_items(self):
-
-        self.__index.delete()
-
-
-
-
-
-
-# if __name__ == "__main__":
-#     lang = LangChainHandler('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',
-#                             '88f45129-5d59-47c7-98b7-aaa43fa128de',
-#                             'gcp-starter')
-#     #lang.get_response('Pizzaria Amanti')
-#     lang.delete_items()
 
 
