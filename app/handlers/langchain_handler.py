@@ -70,9 +70,9 @@ class LangChainHandler:
 
     def get_response(self, company_name):
 
-        metadata_filter = {
-            "company": {"$eq": company_name},
-        }
+        # metadata_filter = {
+        #     "company": {"$eq": company_name},
+        # }
 
         index = pinecone.Index("voxflowv01")
         print(index.describe_index_stats())
