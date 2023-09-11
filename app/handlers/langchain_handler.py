@@ -79,7 +79,7 @@ class LangChainHandler:
 
         vectorstore = Pinecone(index, self.__embeddings.embed_query, 'text')
 
-        query = 'where is the restaurant located?'
+        query = 'Onde se situa o restaurante?'
         docs = vectorstore.similarity_search(
             query,  # our search query
             k=3,  # return 3 most relevant docs
