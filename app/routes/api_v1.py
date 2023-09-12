@@ -17,7 +17,8 @@ router = APIRouter()
 redis_db = redis.Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'],
                        password=os.environ['REDIS_PASSWORD'])
 # Twilio Handler Object
-twilio = TwilioHandler(os.environ['TWILIO_ACCOUNT_SID'], os.environ['TWILIO_AUTH_TOKEN'])
+twilio = TwilioHandler(os.environ['TWILIO_ACCOUNT_SID'], os.environ['TWILIO_AUTH_TOKEN'],
+                       os.environ['TWILIO_ENDPOINT'])
 
 # LangChain Handler Object
 langchain = LangChainHandler(os.environ['OPENAI_API_KEY'], os.environ['PINECODE_API_KEY'],
@@ -25,8 +26,9 @@ langchain = LangChainHandler(os.environ['OPENAI_API_KEY'], os.environ['PINECODE_
 
 # Supase DB Object
 db = SupabaseHandler(os.environ['SUPABASE_URL'], os.environ['SUPABASE_KEY'])
-JWT_SECRET = os.environ['JWT_SECRET']
 
+# SB JWT Secret
+JWT_SECRET = os.environ['JWT_SECRET']
 
 # Pydantic model for the request body
 class SignInRequest(BaseModel):
@@ -57,42 +59,44 @@ def validate_file_type(file: UploadFile):
 @router.post("/answer_call", response_class=HTMLResponse)
 async def answer_call(request: Request):
 
-    url = 'https://voxflowapi.onrender.com/v1/answer_call'
+    # Validate Twilio Request
     twilio_signature = request.headers.get('X-Twilio-Signature')
     request_form = await request.form()
 
-    if not twilio.request_validator(url, request_form, twilio_signature):
+    if not twilio.request_validator(request_form, twilio_signature):
         raise HTTPException(status_code=403, detail="Twilio Validation Error")
 
-    # Create Conversation ID
     resp = VoiceResponse()
 
-    return twilio.greet_and_gather(resp, 'testeCVID')
+    return twilio.greet_and_gather(resp)
 
 
 @router.post("/handle-dialog", response_class=HTMLResponse)
 async def handle_dialog(request: Request):
+
+    # Validate Twilio Request
+    twilio_signature = request.headers.get('X-Twilio-Signature')
+    request_form = await request.form()
+
+    if not twilio.request_validator(request_form, twilio_signature):
+        raise HTTPException(status_code=403, detail="Twilio Validation Error")
+
     body = await request.body()
     #request_form = await request.form()
 
     query_params = request.query_params
     print(query_params.get('cv_id'))
 
-    #print(request.headers)
+    #print(body.decode())
+    list = parse_qs(body.decode()).get('SpeechResult', [''])
+    print(list[0])
+    #print(data_dict.get('SpeechResult', ['']))
 
-    #print(request.items())
 
-    #print(request.values())
-    #print(request.query_params)
-    #print(dict(request.query_params))
-    print(body.decode())
-    data_dict = parse_qs(body.decode())
-    print(data_dict.get('SpeechResult', ['']))
-    #print(request_form)
     #print(data_dict.get('Confidence', ['']))
 
     resp = VoiceResponse()
-    return twilio.handle_dialog(resp)
+    return twilio.handle_dialog(resp, 'teste')
 
 
 @router.post("/signintest")
