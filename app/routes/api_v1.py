@@ -77,7 +77,9 @@ async def handle_dialog(request: Request):
 
     query = request.query_params
     print(query)
-    print(query.get('testeCVID'))
+    print(query.get('cv_id'))
+
+    print(request.headers)
 
     print(request.items())
 

@@ -22,9 +22,8 @@ class TwilioHandler:
 
 
     def greet_and_gather(self, response, conversation_id):
-        with response.gather(input='speech', action='/v1/handle-dialog', speechTimeout='1.5',
-                             speech_model='experimental_conversations', language='pt-PT',
-                             conversation_id=conversation_id) as gather:
+        with response.gather(input='speech', action='/v1/handle-dialog?cv_id=test123', speechTimeout='1.5',
+                             speech_model='experimental_conversations', language='pt-PT') as gather:
             gather.say(message='Olá! Bem-vindo á Pizzaria Imaginária, em que posso ajudá-lo?', language='pt-PT')
 
         return str(response)
