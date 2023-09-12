@@ -1,11 +1,14 @@
-from langchain.chains import RetrievalQA
-from langchain.document_loaders import TextLoader
 from langchain.chat_models import ChatOpenAI
-from langchain.memory import ConversationSummaryMemory
+from langchain.prompts import PromptTemplate, SystemMessagePromptTemplate
 from langchain.document_loaders import UnstructuredPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Pinecone
 from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.schema import (
+    AIMessage,
+    HumanMessage,
+    SystemMessage
+)
 import pinecone
 import tempfile
 import os
@@ -18,20 +21,20 @@ class LangChainHandler:
         # Initialize PineCode
         pinecone.init(api_key=pinecode_api_key, environment=pinecode_api_env)
 
-        #Create Embeddings of your documents to get ready for semantic search
+        # Create Embeddings of your documents to get ready for semantic search
         self.__embeddings = OpenAIEmbeddings(openai_api_key=self.__open_api_key)
 
-        #Pinecode Index Name
+        # Pinecode Index Name
         self.__index_name = pinecode_index
 
-        #Pinecode Index
+        # Pinecode Index
         self.__index = pinecone.Index(pinecode_index)
 
         self.__llm = ChatOpenAI(temperature='0.2', openai_api_key=openai_api_key)
-        self.__memory = ConversationSummaryMemory(llm=self.__llm)
-        self.__template = """
+
+        self.__prompt_template = """
             You are a nice and professional assistance for restaurants. I will share the restaurant menu and all
-            his information and you will give me the best answer that will help the costumer make a order or a 
+            the information required and you will give me the best answer that will help the costumer make a order or a 
             reservation. You will follow all rules bellow:
             
             1/Understand the purpose of the call, whether it's to place a takeaway order, 
@@ -45,11 +48,16 @@ class LangChainHandler:
             
             4/If it's a reservation, ask how many people the reservation is for and what name the reservation is in.
             
-            Bellow is the menu of the restaurant:
-            {rest_menu}
+            Bellow is the required information you need to answer:
+            {company_info}
             
             Please answer nicely.
         """
+
+        self.__prompt = PromptTemplate(
+            template=self.__prompt_template, input_variables=["company_info"]
+        )
+        self.__system_message_prompt = SystemMessagePromptTemplate(prompt=self.__prompt)
 
     async def load_doc(self, file, company_name):
 
@@ -64,12 +72,12 @@ class LangChainHandler:
             # Load the file data
             loader = UnstructuredPDFLoader(temp_file_path)
             data = loader.load()
-            print(data)
+            #print(data)
 
             # Chunk data up into smaller documents
             text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
             texts = text_splitter.split_documents(data)
-            print(texts)
+            #print(texts)
 
             # Metadata
             #meta = [{'company': company_name}]
@@ -99,25 +107,35 @@ class LangChainHandler:
         Pinecone.from_texts([t.page_content for t in texts], self.__embeddings, metadatas=metadata
                             , index_name=self.__index_name)
 
-    def get_response(self, company_name):
+    def get_response(self, company_name, query):
 
-
+        # Defining Metadata Filter
         metadata_filter = {
             "company": {"$eq": company_name},
         }
 
-        print(self.__index.describe_index_stats())
+        #print(self.__index.describe_index_stats())
 
+        # Get vector from Pinecode Index
         vectorstore = Pinecone(self.__index, self.__embeddings.embed_query, 'text')
 
-        query = 'Quais as pizzas que têm fiambre?'
+        # Query
         docs = vectorstore.similarity_search(
             query,  # our search query
             k=3,  # return 3 most relevant docs
-            filter=metadata_filter
+            filter=metadata_filter  # query filter
         )
 
-        print(docs)
+        # Prepare the prompt
+        prompt = self.__system_message_prompt.format(company_info=self.__format_docs(docs))
+        print(prompt)
+
+    def __format_docs(self, docs):
+        formatted_docs = []
+        for doc in docs:
+            formatted_doc = "Source: " + doc.page_content
+            formatted_docs.append(formatted_doc)
+        return '\n'.join(formatted_docs)
 
 
 
