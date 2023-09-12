@@ -73,9 +73,11 @@ async def answer_call(request: Request):
 @router.post("/handle-dialog", response_class=HTMLResponse)
 async def handle_dialog(request: Request):
     body = await request.body()
+    request_form = await request.form()
     print(body.decode())
     data_dict = parse_qs(body.decode())
     print(data_dict.get('SpeechResult', ['']))
+    print(request_form)
     #print(data_dict.get('Confidence', ['']))
 
     resp = VoiceResponse()
