@@ -74,7 +74,8 @@ async def answer_call(request: Request):
 async def handle_dialog(request: Request):
     body = await request.body()
     request_form = await request.form()
-    test = request.get('conversation_id')
+
+    test = request.query_params.get('conversation_id')
     print(request.values())
     print(body.decode())
     data_dict = parse_qs(body.decode())
