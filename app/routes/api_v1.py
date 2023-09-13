@@ -84,21 +84,20 @@ async def handle_dialog(request: Request):
     body = await request.body()
     #request_form = await request.form()
 
-    query_params = request.query_params
-    print(query_params.get('cv_id'))
-    conversation_id = query_params.get('cv_id')
+    conversation_id = request.query_params.get('cv_id')
+    #conversation_id = query_params.get('cv_id')
 
     #print(body.decode())
-    list = parse_qs(body.decode()).get('SpeechResult', [''])
-    print(list[0])
-    print(parse_qs(body.decode()).get('SpeechResult', [''])[0])
+    customer_response = parse_qs(body.decode()).get('SpeechResult', [''])[0]
+    #print(list[0])
+    #print(parse_qs(body.decode()).get('SpeechResult', [''])[0])
     #print(data_dict.get('SpeechResult', ['']))
 
 
     #print(data_dict.get('Confidence', ['']))
 
     resp = VoiceResponse()
-    return twilio.handle_dialog(resp, list[0], conversation_id)
+    return twilio.handle_dialog(resp, customer_response, conversation_id)
 
 
 @router.post("/signintest")

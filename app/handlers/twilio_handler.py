@@ -30,7 +30,7 @@ class TwilioHandler:
         # Create full endpoint with the Conversation ID
         action_url = f'/v1/handle-dialog?cv_id={unique_id}'
 
-        with response.gather(input='speech', action=action_url, speechTimeout=1,
+        with response.gather(input='speech', action=action_url, speechTimeout=0.5,
                              speech_model='experimental_conversations', language='pt-PT') as gather:
             gather.say(message='Olá! Bem-vindo á Pizzaria Amanti, em que posso ajudá-lo?', language='pt-PT')
 
@@ -38,9 +38,12 @@ class TwilioHandler:
 
     def handle_dialog(self, response, resp_customer, conversation_id):
 
+        print(resp_customer)
+        print(conversation_id)
+
         action_url = f'/v1/handle-dialog?cv_id={conversation_id}'
 
-        with response.gather(input='speech', action=action_url, speechTimeout='1',
+        with response.gather(input='speech', action=action_url, speechTimeout=0.5,
                              speech_model='experimental_conversations', method='POST', language='pt-PT') as gather:
             gather.say(message='Recebemos a sua mensagem com sucesso, para terminar a chamada diga adeus',
                        language='pt-PT')
