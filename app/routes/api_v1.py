@@ -80,14 +80,15 @@ async def handle_dialog(request: Request):
     # Validate Twilio Request
     twilio_signature = request.headers.get('X-Twilio-Signature')
     request_form = await request.form()
+    conversation_id = request.query_params.get('cv_id')
+
+    full_url = f'{ENDPOINT_DIALOG}?cv_id={conversation_id}'
 
     if not twilio.request_validator(ENDPOINT_DIALOG, request_form, twilio_signature):
         raise HTTPException(status_code=403, detail="Twilio Validation Error")
 
     body = await request.body()
     #request_form = await request.form()
-
-    conversation_id = request.query_params.get('cv_id')
 
     #print(body.decode())
     customer_response = parse_qs(body.decode()).get('SpeechResult', [''])[0]
