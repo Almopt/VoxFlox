@@ -17,8 +17,7 @@ router = APIRouter()
 redis_db = redis.Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'],
                        password=os.environ['REDIS_PASSWORD'])
 # Twilio Handler Object
-twilio = TwilioHandler(os.environ['TWILIO_ACCOUNT_SID'], os.environ['TWILIO_AUTH_TOKEN'],
-                       os.environ['TWILIO_ENDPOINT'])
+twilio = TwilioHandler(os.environ['TWILIO_ACCOUNT_SID'], os.environ['TWILIO_AUTH_TOKEN'])
 
 # LangChain Handler Object
 langchain = LangChainHandler(os.environ['OPENAI_API_KEY'], os.environ['PINECODE_API_KEY'],
@@ -29,6 +28,10 @@ db = SupabaseHandler(os.environ['SUPABASE_URL'], os.environ['SUPABASE_KEY'])
 
 # SB JWT Secret
 JWT_SECRET = os.environ['JWT_SECRET']
+
+# Twilio Endpoints
+ENDPOINT_ANSWER_CALL = os.environ['TWILIO_ENDPOINT_ANSWER_CALL']
+ENDPOINT_DIALOG = os.environ['TWILIO_ENDPOINT_DIALOG']
 
 # Pydantic model for the request body
 class SignInRequest(BaseModel):
@@ -63,7 +66,7 @@ async def answer_call(request: Request):
     twilio_signature = request.headers.get('X-Twilio-Signature')
     request_form = await request.form()
 
-    if not twilio.request_validator(request_form, twilio_signature):
+    if not twilio.request_validator(ENDPOINT_ANSWER_CALL, request_form, twilio_signature):
         raise HTTPException(status_code=403, detail="Twilio Validation Error")
 
     resp = VoiceResponse()
@@ -75,25 +78,19 @@ async def answer_call(request: Request):
 async def handle_dialog(request: Request):
 
     # Validate Twilio Request
-    # twilio_signature = request.headers.get('X-Twilio-Signature')
-    # request_form = await request.form()
-    #
-    # if not twilio.request_validator(request_form, twilio_signature):
-    #     raise HTTPException(status_code=403, detail="Twilio Validation Error")
+    twilio_signature = request.headers.get('X-Twilio-Signature')
+    request_form = await request.form()
+
+    if not twilio.request_validator(ENDPOINT_DIALOG, request_form, twilio_signature):
+        raise HTTPException(status_code=403, detail="Twilio Validation Error")
 
     body = await request.body()
     #request_form = await request.form()
 
     conversation_id = request.query_params.get('cv_id')
-    #conversation_id = query_params.get('cv_id')
 
     #print(body.decode())
     customer_response = parse_qs(body.decode()).get('SpeechResult', [''])[0]
-    #print(list[0])
-    #print(parse_qs(body.decode()).get('SpeechResult', [''])[0])
-    #print(data_dict.get('SpeechResult', ['']))
-
-
     #print(data_dict.get('Confidence', ['']))
 
     resp = VoiceResponse()
