@@ -83,6 +83,8 @@ async def handle_dialog(request: Request):
     conversation_id = request.query_params.get('cv_id')
 
     full_url = f'{ENDPOINT_DIALOG}?cv_id={conversation_id}'
+    print(full_url)
+    print(request.url)
 
     if not twilio.request_validator(full_url, request_form, twilio_signature):
         raise HTTPException(status_code=403, detail="Twilio Validation Error")
