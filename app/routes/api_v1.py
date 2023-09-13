@@ -75,11 +75,11 @@ async def answer_call(request: Request):
 async def handle_dialog(request: Request):
 
     # Validate Twilio Request
-    twilio_signature = request.headers.get('X-Twilio-Signature')
-    request_form = await request.form()
-
-    if not twilio.request_validator(request_form, twilio_signature):
-        raise HTTPException(status_code=403, detail="Twilio Validation Error")
+    # twilio_signature = request.headers.get('X-Twilio-Signature')
+    # request_form = await request.form()
+    #
+    # if not twilio.request_validator(request_form, twilio_signature):
+    #     raise HTTPException(status_code=403, detail="Twilio Validation Error")
 
     body = await request.body()
     #request_form = await request.form()
