@@ -16,13 +16,11 @@ class TwilioHandler:
         self.__validator = RequestValidator(auth_token)
         self.__endpoint = endpoint
 
-
     def request_validator(self, request_form, twilio_signature):
         # Convert the form data into a dictionary
         parameters = {key: value for key, value in request_form.items()}
 
         return self.__validator.validate(self.__endpoint, request_form, twilio_signature)
-
 
     def greet_and_gather(self, response):
 
@@ -39,6 +37,8 @@ class TwilioHandler:
 
         # Create full endpoint with the Conversation ID
         action_url = f'/v1/handle-dialog?cv_id={unique_id}'
+
+        print(action_url)
 
 
         with response.gather(input='speech', action=action_url, speechTimeout='1',
