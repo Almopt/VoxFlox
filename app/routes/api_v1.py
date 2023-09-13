@@ -80,8 +80,8 @@ async def handle_dialog(request: Request):
     # Validate Twilio Request
     twilio_signature = request.headers.get('X-Twilio-Signature')
     request_form = await request.form()
-    body = await request.body()
     print(request_form)
+    body = await request.body()
     conversation_id = request.query_params.get('cv_id')
 
     full_url = f'{ENDPOINT_DIALOG}?cv_id={conversation_id}'
