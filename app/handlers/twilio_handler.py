@@ -39,7 +39,7 @@ class TwilioHandler:
 
         action_url = f'/v1/handle-dialog?cv_id={conversation_id}'
 
-        print(resp_customer)
+        print(f'Customer Response - {resp_customer}')
 
         with response.gather(input='speech', action=action_url, speechTimeout=1,
                              speech_model='experimental_conversations', method='POST', language='pt-PT') as gather:
