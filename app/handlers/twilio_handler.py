@@ -58,6 +58,7 @@ class TwilioHandler:
         print(f'Customer Response - {resp_customer}')
 
         bot_response = self.__langchain.get_response('Pizzaria Amanti', resp_customer, existing_conversation)
+
         print(bot_response.content)
 
         with response.gather(input='speech', action=action_url, speechTimeout=1,
