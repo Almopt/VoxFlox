@@ -14,6 +14,12 @@ import tempfile
 import os
 
 
+ROLE_CLASS_MAP = {
+    "assistant": AIMessage,
+    "user": HumanMessage,
+    "system": SystemMessage
+}
+
 class LangChainHandler:
     def __init__(self, openai_api_key, pinecode_api_key, pinecode_api_env, pinecode_index):
         self.__open_api_key = openai_api_key
@@ -35,7 +41,8 @@ class LangChainHandler:
         self.__prompt_template = """
             You are a nice and professional assistance for restaurants. I will share the restaurant menu and all
             the information required and you will give me the best answer that will help the costumer make a order or a 
-            reservation. You will follow all rules bellow:
+            reservation. You only have to identify the price and ingredients of the dishes when the customer asks you to.
+            You will follow all rules bellow:
             
             1/Understand the purpose of the call, whether it's to place a takeaway order, 
             delivery or to make a reservation.
@@ -47,6 +54,7 @@ class LangChainHandler:
             Ask for the delivery address and thank them for their preference.
             
             4/If it's a reservation, ask how many people the reservation is for and what name the reservation is in.
+            
             
             Bellow is the required information you need to answer:
             {company_info}
@@ -107,7 +115,11 @@ class LangChainHandler:
         Pinecone.from_texts([t.page_content for t in texts], self.__embeddings, metadatas=metadata
                             , index_name=self.__index_name)
 
-    def get_response(self, company_name, query):
+    def __create_messages(self, conversation):
+        return [ROLE_CLASS_MAP[message['role']](content=message['content']) for message in conversation]
+
+
+    def get_response(self, company_name, query, conversation):
 
         # Defining Metadata Filter
         metadata_filter = {
@@ -128,7 +140,12 @@ class LangChainHandler:
 
         # Prepare the prompt
         prompt = self.__system_message_prompt.format(company_info=self.__format_docs(docs))
-        print(prompt)
+
+        # Combine prompt with new messages and chat history
+        messages = [prompt] + self.__create_messages(conversation=conversation['conversation'])
+
+        result = self.__llm(messages)
+        print(result.content)
 
     def __format_docs(self, docs):
         formatted_docs = []
@@ -136,6 +153,8 @@ class LangChainHandler:
             formatted_doc = "Source: " + doc.page_content
             formatted_docs.append(formatted_doc)
         return '\n'.join(formatted_docs)
+
+
 
 
 

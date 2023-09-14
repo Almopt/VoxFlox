@@ -16,12 +16,13 @@ router = APIRouter()
 # Redis DB Object
 redis_db = redis.Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'],
                        password=os.environ['REDIS_PASSWORD'])
-# Twilio Handler Object
-twilio = TwilioHandler(os.environ['TWILIO_ACCOUNT_SID'], os.environ['TWILIO_AUTH_TOKEN'])
 
 # LangChain Handler Object
 langchain = LangChainHandler(os.environ['OPENAI_API_KEY'], os.environ['PINECODE_API_KEY'],
                              os.environ['PINECODE_API_ENV'], os.environ['PINECODE_API_INDEX'])
+
+# Twilio Handler Object
+twilio = TwilioHandler(os.environ['TWILIO_ACCOUNT_SID'], os.environ['TWILIO_AUTH_TOKEN'], redis_db, langchain)
 
 # Supase DB Object
 db = SupabaseHandler(os.environ['SUPABASE_URL'], os.environ['SUPABASE_KEY'])
@@ -80,20 +81,15 @@ async def handle_dialog(request: Request):
     # Validate Twilio Request
     twilio_signature = request.headers.get('X-Twilio-Signature')
     request_form = await request.form()
-    print(request_form.items())
     data_dict = dict(request_form)
 
     #body = await request.body()
     conversation_id = request.query_params.get('cv_id')
 
     full_url = f'{ENDPOINT_DIALOG}?cv_id={conversation_id}'
-    print(full_url)
-    print(request.url)
 
     if not twilio.request_validator(full_url, request_form, twilio_signature):
         raise HTTPException(status_code=403, detail="Twilio Validation Error")
-
-    #request_form = await request.form()
 
     #print(body.decode())
     #customer_response = parse_qs(body.decode()).get('SpeechResult', [''])[0]
