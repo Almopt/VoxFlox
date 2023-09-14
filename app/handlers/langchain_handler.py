@@ -192,13 +192,6 @@ class LangChainHandler:
         return '\n'.join(formatted_docs)
 
 
-if __name__ == "__main__":
-    langchain = LangChainHandler('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',
-                                 '88f45129-5d59-47c7-98b7-aaa43fa128de',
-                                 'gcp-starter', 'voxflowdev')
-    query = 'boa tarde, quero fazer uma encomenda de uma pizza margarita para entrega em casa?'
-    conversation = {"conversation": [{"role": "system", "content": "You are a helpful assistant."},
-                                     {'role': 'user', 'content': query}]}
-    langchain.get_response('Pizzaria Amanti', query, conversation)
+
 
 
