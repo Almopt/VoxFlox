@@ -145,7 +145,7 @@ class LangChainHandler:
         messages = [prompt] + self.__create_messages(conversation=conversation['conversation'])
 
         result = self.__llm(messages)
-        print(result.content)
+        return result
 
     def __format_docs(self, docs):
         formatted_docs = []
@@ -155,6 +155,13 @@ class LangChainHandler:
         return '\n'.join(formatted_docs)
 
 
-
+if __name__ == "__main__":
+    langchain = LangChainHandler('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',
+                                 '88f45129-5d59-47c7-98b7-aaa43fa128de',
+                                 'gcp-starter', 'voxflowdev')
+    query = 'Olá é possivel fazer um reserva de lugar para jantar hoje a noite?'
+    conversation = {"conversation": [{"role": "system", "content": "You are a helpful assistant."},
+                                     {'role': 'user', 'content': query}]}
+    langchain.get_response('Pizzaria Amanti', query, conversation)
 
 
