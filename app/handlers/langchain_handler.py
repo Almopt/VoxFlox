@@ -36,30 +36,66 @@ class LangChainHandler:
         # Pinecode Index
         self.__index = pinecone.Index(pinecode_index)
 
+        # Pinecode Vector
+        self.__vectorstore = Pinecone(self.__index, self.__embeddings.embed_query, 'text')
+
         self.__llm = ChatOpenAI(temperature='0.2', openai_api_key=openai_api_key)
 
+        # self.__prompt_template = """
+        #     You are a nice and professional assistance for restaurants. I will share the restaurant menu and all
+        #     the information required and you will give me the best answer that will help the costumer make a order or a
+        #     reservation. You only have to identify the price and ingredients of the dishes when the customer asks you to.
+        #     You will follow all rules bellow:
+        #
+        #     1/Understand the purpose of the call, whether it's to place a takeaway order,
+        #     delivery or to make a reservation.
+        #
+        #     2/ If it's a take-away order, help with any questions the customer may have about the menu.
+        #     Ask what the order is under and thank them for their preference.
+        #
+        #     3/If it's a home delivery order, help with any questions the customer may have about the menu.
+        #     Ask for the delivery address and thank them for their preference.
+        #
+        #     4/If it's a reservation, ask how many people the reservation is for and what name the reservation is in.
+        #
+        #     Bellow is the required information you need to answer:
+        #     {company_info}
+        #
+        #     Please answer nicely.
+        # """
+
         self.__prompt_template = """
-            You are a nice and professional assistance for restaurants. I will share the restaurant menu and all
-            the information required and you will give me the best answer that will help the costumer make a order or a 
-            reservation. You only have to identify the price and ingredients of the dishes when the customer asks you to.
-            You will follow all rules bellow:
-            
-            1/Understand the purpose of the call, whether it's to place a takeaway order, 
-            delivery or to make a reservation.
-            
-            2/ If it's a take-away order, help with any questions the customer may have about the menu. 
-            Ask what the order is under and thank them for their preference.
-            
-            3/If it's a home delivery order, help with any questions the customer may have about the menu. 
-            Ask for the delivery address and thank them for their preference.
-            
-            4/If it's a reservation, ask how many people the reservation is for and what name the reservation is in.
-            
-            
-            Bellow is the required information you need to answer:
-            {company_info}
-            
-            Please answer nicely.
+        You are a restaurant assistant responsible for managing incoming calls and assisting customers with various 
+        requests. Your main tasks include taking reservations, processing take-away orders, and arranging home delivery 
+        orders. Your goal is to provide excellent customer service and ensure a smooth and efficient ordering process.
+
+        As a restaurant assistant, you should be polite, patient, and attentive to customer needs. You should have good 
+        communication skills and be able to handle multiple tasks simultaneously. You should also be familiar with the 
+        restaurant's menu, pricing, and policies to answer customer inquiries accurately.
+        
+        In this role, you will receive calls from customers looking to make reservations for dining in, place orders for 
+        take-away, or request home delivery. You will need to gather relevant information such as the number of guests, 
+        preferred date and time, specific dietary requirements, and delivery address. Based on this information, you 
+        will assist customers in finding suitable options and provide recommendations if needed.
+        
+        To make a reservation, you will need to check the availability of tables and confirm the reservation details 
+        with the customer. For take-away orders, you will need to accurately record the order, suggest any specials or 
+        add-ons, and provide an estimated pick-up time. When handling home delivery orders, you will need to ensure the 
+        customer's address is within the delivery range and coordinate with the delivery team to ensure timely and 
+        accurate delivery.
+        
+        Throughout your interactions with customers, it is important to maintain a professional and friendly manner, 
+        addressing any concerns or issues promptly and finding appropriate solutions. 
+        Your ultimate goal is to provide a positive customer experience and ensure that all orders are processed 
+        efficiently and accurately.
+        
+        Bellow is the required information you need to answer:
+        {company_info}
+        
+        Remember, as a restaurant assistant, you play a crucial role in managing customer interactions and contributing 
+        to the overall success of the restaurant.
+        
+        Please note that the answers to the following questions should be short and concise.                
         """
 
         self.__prompt = PromptTemplate(
@@ -129,10 +165,10 @@ class LangChainHandler:
         #print(self.__index.describe_index_stats())
 
         # Get vector from Pinecode Index
-        vectorstore = Pinecone(self.__index, self.__embeddings.embed_query, 'text')
+        #vectorstore = Pinecone(self.__index, self.__embeddings.embed_query, 'text')
 
         # Query
-        docs = vectorstore.similarity_search(
+        docs = self.__vectorstore.similarity_search(
             query,  # our search query
             k=3,  # return 3 most relevant docs
             filter=metadata_filter  # query filter
@@ -145,6 +181,7 @@ class LangChainHandler:
         messages = [prompt] + self.__create_messages(conversation=conversation['conversation'])
 
         result = self.__llm(messages)
+        print(result.content)
         return result
 
     def __format_docs(self, docs):
@@ -159,7 +196,7 @@ if __name__ == "__main__":
     langchain = LangChainHandler('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',
                                  '88f45129-5d59-47c7-98b7-aaa43fa128de',
                                  'gcp-starter', 'voxflowdev')
-    query = 'Olá é possivel fazer um reserva de lugar para jantar hoje a noite?'
+    query = 'boa tarde, quero fazer uma encomenda de uma pizza margarita para entrega em casa?'
     conversation = {"conversation": [{"role": "system", "content": "You are a helpful assistant."},
                                      {'role': 'user', 'content': query}]}
     langchain.get_response('Pizzaria Amanti', query, conversation)
