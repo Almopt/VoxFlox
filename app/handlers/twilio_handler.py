@@ -67,7 +67,7 @@ class TwilioHandler:
                        language='pt-PT')
 
         # Append VoxFlowBot Response
-        existing_conversation["conversation"].append({"role": "assistant", "content": bot_response.conten})
+        existing_conversation["conversation"].append({"role": "assistant", "content": bot_response.content})
 
         self.__redis.set(conversation_id, json.dumps(existing_conversation))
 
