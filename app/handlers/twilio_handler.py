@@ -83,6 +83,7 @@ class TwilioHandler:
         #     collected_data.extend([chunk async for chunk in collect_data()])
 
         #processed_data = ''.join(collected_data)
+        processed_data = {}
 
         # Append VoxFlowBot Response
         existing_conversation["conversation"].append({"role": "assistant", "content": processed_data})
