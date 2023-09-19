@@ -35,11 +35,11 @@ class TwilioHandler:
         action_url = f'/v1/handle-dialog?cv_id={unique_id}'
 
         response.append(connect.stream(url='wss://voxflowapi.onrender.com/v1/audio_stream'))
-        response.say(message='Olá! Bem-vindo á Pizzaria Amanti, em que posso ajudá-lo?', language='pt-PT')
+        #response.say(message='Olá! Bem-vindo á Pizzaria Amanti, em que posso ajudá-lo?', language='pt-PT')
 
-        # with response.gather(input='speech', action=action_url, speechTimeout=1,
-        #                      speech_model='experimental_conversations', language='pt-PT') as gather:
-        #     gather.say(message='Olá! Bem-vindo á Pizzaria Amanti, em que posso ajudá-lo?', language='pt-PT')
+        with response.gather(input='speech', action=action_url, speechTimeout=1,
+                             speech_model='experimental_conversations', language='pt-PT') as gather:
+            gather.say(message='Olá! Bem-vindo á Pizzaria Amanti, em que posso ajudá-lo?', language='pt-PT')
 
         return str(response)
 
