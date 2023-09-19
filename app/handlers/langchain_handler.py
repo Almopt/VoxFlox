@@ -174,7 +174,7 @@ class LangChainHandler:
         return [ROLE_CLASS_MAP[message['role']](content=message['content']) for message in conversation]
 
 
-    async def get_response(self, company_name, query, conversation) -> AsyncIterable[str]:
+    async def get_response(self, company_name, query, conversation):  #-> AsyncIterable[str]:
 
         # Defining Metadata Filter
         metadata_filter = {
@@ -199,21 +199,21 @@ class LangChainHandler:
         # Combine prompt with new messages and chat history
         messages = [prompt] + self.__create_messages(conversation=conversation['conversation'])
 
-        task = asyncio.create_task(
-            self.__llm.agenerate(messages=[messages])
-        )
+        # task = asyncio.create_task(
+        #     self.__llm.agenerate(messages=[messages])
+        # )
+        #
+        # try:
+        #     async for token in AsyncIteratorCallbackHandler().aiter():
+        #         yield token
+        # except Exception as e:
+        #     print(f"Caught exception: {e}")
+        # finally:
+        #     AsyncIteratorCallbackHandler().done.set()
+        #
+        # await task
 
-        try:
-            async for token in AsyncIteratorCallbackHandler().aiter():
-                yield token
-        except Exception as e:
-            print(f"Caught exception: {e}")
-        finally:
-            AsyncIteratorCallbackHandler().done.set()
-
-        await task
-
-        #result = self.__llm(messages)
+        result = self.__llm(messages)
         # print(self.__llm(messages))
         # result = {}
         #
