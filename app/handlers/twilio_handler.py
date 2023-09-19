@@ -70,17 +70,17 @@ class TwilioHandler:
         response.gather(input='speech', action=action_url, speechTimeout=1,
                         speech_model='experimental_conversations', method='POST', language='pt-PT')
 
-        # with response.connect(endpoint='wss://voxflowapi.onrender.com/v1/audio_stream') as connect:
-        #     connect.stream(self.__langchain.get_response('Pizzaria Amanti', resp_customer, existing_conversation))
+        with response.connect(endpoint='wss://voxflowapi.onrender.com/v1/audio_stream') as connect:
+            connect.stream(self.__langchain.get_response('Pizzaria Amanti', resp_customer, existing_conversation))
 
         # Establish a WebSocket connection with 'teste' and stream data
-        with response.connect(endpoint='wss://voxflowapi.onrender.com/v1/audio_stream') as connect:
-            # Use an asynchronous generator function to collect streamed data
-            async def collect_data():
-                async for chunk in connect.stream(self.__langchain.get_response('Pizzaria Amanti', resp_customer,
-                                                                                existing_conversation)):
-                    yield chunk
-            collected_data.extend([chunk async for chunk in collect_data()])
+        # with response.connect(endpoint='wss://voxflowapi.onrender.com/v1/audio_stream') as connect:
+        #     # Use an asynchronous generator function to collect streamed data
+        #     async def collect_data():
+        #         async for chunk in connect.stream(self.__langchain.get_response('Pizzaria Amanti', resp_customer,
+        #                                                                         existing_conversation)):
+        #             yield chunk
+        #     collected_data.extend([chunk async for chunk in collect_data()])
 
         processed_data = ''.join(collected_data)
 
