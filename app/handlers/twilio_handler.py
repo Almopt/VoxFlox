@@ -2,6 +2,7 @@ from twilio.rest import Client
 from twilio.request_validator import RequestValidator
 import uuid
 import json
+import base64
 
 
 # Custom exception class for validation failure
@@ -25,7 +26,7 @@ class TwilioHandler:
 
         return self.__validator.validate(url, request_form, twilio_signature)
 
-    def greet_and_gather(self, response):
+    def greet_and_gather(self, response, connect):
 
         # Create Conversation ID
         unique_id = uuid.uuid4()
@@ -33,16 +34,17 @@ class TwilioHandler:
         # Create full endpoint with the Conversation ID
         action_url = f'/v1/handle-dialog?cv_id={unique_id}'
 
-        with response.gather(input='speech', action=action_url, speechTimeout=1,
-                             speech_model='experimental_conversations', language='pt-PT') as gather:
-            gather.say(message='Olá! Bem-vindo á Pizzaria Amanti, em que posso ajudá-lo?', language='pt-PT')
+        response.say(message='Olá! Bem-vindo á Pizzaria Amanti, em que posso ajudá-lo?', language='pt-PT')
+        response.append(connect.stream(url='wss://voxflowapi.onrender.com/v1/audio_stream'))
+
+
+        # with response.gather(input='speech', action=action_url, speechTimeout=1,
+        #                      speech_model='experimental_conversations', language='pt-PT') as gather:
+        #     gather.say(message='Olá! Bem-vindo á Pizzaria Amanti, em que posso ajudá-lo?', language='pt-PT')
 
         return str(response)
 
     def handle_dialog(self, response, resp_customer, conversation_id):
-
-        # Define a list to store collected data
-        collected_data = []
 
         # Check if the conversation ID already exists
         existing_conversation_json = self.__redis.get(conversation_id)
@@ -60,33 +62,15 @@ class TwilioHandler:
 
         print(f'Customer Response - {resp_customer}')
 
-        #bot_response = self.__langchain.get_response('Pizzaria Amanti', resp_customer, existing_conversation)
+        bot_response = self.__langchain.get_response('Pizzaria Amanti', resp_customer, existing_conversation)
 
-        # with response.gather(input='speech', action=action_url, speechTimeout=1,
-        #                      speech_model='experimental_conversations', method='POST', language='pt-PT') as gather:
-        #     gather.say(message=bot_response.content,
-        #                language='pt-PT')
-
-        response.gather(input='speech', action=action_url, speechTimeout=1,
-                        speech_model='experimental_conversations', method='POST', language='pt-PT')
-
-        with response.connect(endpoint='wss://voxflowapi.onrender.com/v1/audio_stream') as connect:
-            connect.stream(self.__langchain.get_response('Pizzaria Amanti', resp_customer, existing_conversation))
-
-        # Establish a WebSocket connection with 'teste' and stream data
-        # with response.connect(endpoint='wss://voxflowapi.onrender.com/v1/audio_stream') as connect:
-        #     # Use an asynchronous generator function to collect streamed data
-        #     async def collect_data():
-        #         async for chunk in connect.stream(self.__langchain.get_response('Pizzaria Amanti', resp_customer,
-        #                                                                         existing_conversation)):
-        #             yield chunk
-        #     collected_data.extend([chunk async for chunk in collect_data()])
-
-        #processed_data = ''.join(collected_data)
-        processed_data = {}
+        with response.gather(input='speech', action=action_url, speechTimeout=1,
+                             speech_model='experimental_conversations', method='POST', language='pt-PT') as gather:
+            gather.say(message=bot_response.content,
+                       language='pt-PT')
 
         # Append VoxFlowBot Response
-        existing_conversation["conversation"].append({"role": "assistant", "content": processed_data})
+        existing_conversation["conversation"].append({"role": "assistant", "content": bot_response.content})
 
         self.__redis.set(conversation_id, json.dumps(existing_conversation))
 
@@ -95,7 +79,41 @@ class TwilioHandler:
     async def handle_response_stream(self, websocket):
 
         while True:
-            data = await websocket.receive_text()
-            await websocket.send_text(f"Message text was: {data}")
+            # Wait for user input (DTMF) from Twilio
+            dtmf_input = await websocket.receive_text()
+            print(dtmf_input)
+
+            has_seen_media = False
+            message_count = 0
+
+            while True:
+                message = await websocket.receive_text()
+                if message is None:
+                    print("No message received...")
+                    continue
+
+                data = json.loads(message)
+
+                if data['event'] == "connected":
+                    print("Connected Message received: {}".format(message))
+                if data['event'] == "start":
+                    print("Start Message received: {}".format(message))
+                if data['event'] == "media":
+                    if not has_seen_media:
+                        print("Media message: {}".format(message))
+                        payload = data['media']['payload']
+                        print("Payload is: {}".format(payload))
+                        chunk = base64.b64decode(payload)
+                        print("That's {} bytes".format(len(chunk)))
+                        print("Additional media messages from WebSocket are being suppressed....")
+                        has_seen_media = True
+                if data['event'] == "closed":
+                    print("Closed Message received: {}".format(message))
+                    break
+                message_count += 1
+
+            # # Process user input and generate responses in chunks
+            # for response_chunk in generate_responses_in_chunks(dtmf_input):
+            #     websocket.send_text(response_chunk)
 
 

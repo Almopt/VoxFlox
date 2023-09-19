@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, UploadFile, Depends, WebSocket
 from fastapi.responses import HTMLResponse, JSONResponse
-from twilio.twiml.voice_response import VoiceResponse
+from twilio.twiml.voice_response import VoiceResponse, Connect
 import os
 import jwt
 import redis
@@ -77,8 +77,9 @@ async def answer_call(request: Request):
         raise HTTPException(status_code=403, detail="Twilio Validation Error")
 
     resp = VoiceResponse()
+    connect = Connect()
 
-    return twilio.greet_and_gather(resp)
+    return twilio.greet_and_gather(resp, connect)
 
 
 @router.post("/handle-dialog", response_class=HTMLResponse)
