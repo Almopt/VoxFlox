@@ -4,14 +4,19 @@ from langchain.document_loaders import UnstructuredPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Pinecone
 from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+from langchain.callbacks import AsyncIteratorCallbackHandler
 from langchain.schema import (
     AIMessage,
     HumanMessage,
     SystemMessage
 )
+from typing import AsyncIterable
 import pinecone
 import tempfile
 import os
+import asyncio
+import time
 
 
 ROLE_CLASS_MAP = {
@@ -39,7 +44,11 @@ class LangChainHandler:
         # Pinecode Vector
         self.__vectorstore = Pinecone(self.__index, self.__embeddings.embed_query, 'text')
 
-        self.__llm = ChatOpenAI(temperature='0.2', openai_api_key=openai_api_key)
+        # self.__llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], temperature=0,
+        #                         openai_api_key=openai_api_key)
+
+        self.__llm = ChatOpenAI(streaming=True, callbacks=[AsyncIteratorCallbackHandler()], temperature=0,
+                                openai_api_key=openai_api_key)
 
         # self.__prompt_template = """
         #     You are a nice and professional assistance for restaurants. I will share the restaurant menu and all
@@ -65,38 +74,48 @@ class LangChainHandler:
         # """
 
         self.__prompt_template = """
-        You are a restaurant assistant responsible for managing incoming calls and assisting customers with various 
-        requests. Your main tasks include taking reservations, processing take-away orders, and arranging home delivery 
+        You are a restaurant assistant responsible for managing incoming calls and assisting customers with various
+        requests. Your main tasks include taking reservations, processing take-away orders, and arranging home delivery
         orders. Your goal is to provide excellent customer service and ensure a smooth and efficient ordering process.
 
-        As a restaurant assistant, you should be polite, patient, and attentive to customer needs. You should have good 
-        communication skills and be able to handle multiple tasks simultaneously. You should also be familiar with the 
+        As a restaurant assistant, you should be polite, patient, and attentive to customer needs. You should have good
+        communication skills and be able to handle multiple tasks simultaneously. You should also be familiar with the
         restaurant's menu, pricing, and policies to answer customer inquiries accurately.
-        
-        In this role, you will receive calls from customers looking to make reservations for dining in, place orders for 
-        take-away, or request home delivery. You will need to gather relevant information such as the number of guests, 
-        preferred date and time, specific dietary requirements, and delivery address. Based on this information, you 
+
+        In this role, you will receive calls from customers looking to make reservations for dining in, place orders for
+        take-away, or request home delivery. You will need to gather relevant information such as the number of guests,
+        preferred date and time, specific dietary requirements, and delivery address. Based on this information, you
         will assist customers in finding suitable options and provide recommendations if needed.
-        
-        To make a reservation, you will need to check the availability of tables and confirm the reservation details 
-        with the customer. For take-away orders, you will need to accurately record the order, suggest any specials or 
-        add-ons, and provide an estimated pick-up time. When handling home delivery orders, you will need to ensure the 
-        customer's address is within the delivery range and coordinate with the delivery team to ensure timely and 
+
+        To make a reservation, you will need to check the availability of tables and confirm the reservation details
+        with the customer. For take-away orders, you will need to accurately record the order, suggest any specials or
+        add-ons, and provide an estimated pick-up time. When handling home delivery orders, you will need to ensure the
+        customer's address is within the delivery range and coordinate with the delivery team to ensure timely and
         accurate delivery.
-        
-        Throughout your interactions with customers, it is important to maintain a professional and friendly manner, 
-        addressing any concerns or issues promptly and finding appropriate solutions. 
-        Your ultimate goal is to provide a positive customer experience and ensure that all orders are processed 
+
+        Throughout your interactions with customers, it is important to maintain a professional and friendly manner,
+        addressing any concerns or issues promptly and finding appropriate solutions.
+        Your ultimate goal is to provide a positive customer experience and ensure that all orders are processed
         efficiently and accurately.
-        
+
         Bellow is the required information you need to answer:
         {company_info}
-        
-        Remember, as a restaurant assistant, you play a crucial role in managing customer interactions and contributing 
+
+        Remember, as a restaurant assistant, you play a crucial role in managing customer interactions and contributing
         to the overall success of the restaurant.
-        
-        Please note that the answers to the following questions should be short and concise.                
+
+        Please note that the answers to the following questions should be short and concise.
         """
+
+        # self.__prompt_template = """
+        #     As a restaurant assistant, your tasks include reservations, take-away orders, and home deliveries.
+        #     Provide excellent service, handle inquiries, and ensure a smooth process. Be polite, attentive, and
+        #     knowledgeable about the menu. Gather customer details for reservations, order specifics for take-away, and
+        #     delivery addresses. Check table availability, record orders, and coordinate home deliveries efficiently.
+        #     Maintain professionalism, address concerns promptly, and prioritize a positive customer experience.
+        #     Bellow is the required information you need to answer:
+        #     {company_info}
+        # """
 
         self.__prompt = PromptTemplate(
             template=self.__prompt_template, input_variables=["company_info"]
@@ -155,7 +174,7 @@ class LangChainHandler:
         return [ROLE_CLASS_MAP[message['role']](content=message['content']) for message in conversation]
 
 
-    def get_response(self, company_name, query, conversation):
+    async def get_response(self, company_name, query, conversation) -> AsyncIterable[str]:
 
         # Defining Metadata Filter
         metadata_filter = {
@@ -180,9 +199,25 @@ class LangChainHandler:
         # Combine prompt with new messages and chat history
         messages = [prompt] + self.__create_messages(conversation=conversation['conversation'])
 
-        result = self.__llm(messages)
-        print(result.content)
-        return result
+        task = asyncio.create_task(
+            self.__llm.agenerate(messages=[messages])
+        )
+
+        try:
+            async for token in AsyncIteratorCallbackHandler().aiter():
+                yield token
+        except Exception as e:
+            print(f"Caught exception: {e}")
+        finally:
+            AsyncIteratorCallbackHandler().done.set()
+
+        await task
+
+        #result = self.__llm(messages)
+        # print(self.__llm(messages))
+        # result = {}
+        #
+        # return result
 
     def __format_docs(self, docs):
         formatted_docs = []
@@ -190,6 +225,7 @@ class LangChainHandler:
             formatted_doc = "Source: " + doc.page_content
             formatted_docs.append(formatted_doc)
         return '\n'.join(formatted_docs)
+
 
 
 

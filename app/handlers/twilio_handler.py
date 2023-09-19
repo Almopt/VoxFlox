@@ -41,6 +41,9 @@ class TwilioHandler:
 
     def handle_dialog(self, response, resp_customer, conversation_id):
 
+        # Define a list to store collected data
+        collected_data = []
+
         # Check if the conversation ID already exists
         existing_conversation_json = self.__redis.get(conversation_id)
         if existing_conversation_json:
@@ -57,20 +60,39 @@ class TwilioHandler:
 
         print(f'Customer Response - {resp_customer}')
 
-        bot_response = self.__langchain.get_response('Pizzaria Amanti', resp_customer, existing_conversation)
+        #bot_response = self.__langchain.get_response('Pizzaria Amanti', resp_customer, existing_conversation)
 
-        print(bot_response.content)
+        # with response.gather(input='speech', action=action_url, speechTimeout=1,
+        #                      speech_model='experimental_conversations', method='POST', language='pt-PT') as gather:
+        #     gather.say(message=bot_response.content,
+        #                language='pt-PT')
 
-        with response.gather(input='speech', action=action_url, speechTimeout=1,
-                             speech_model='experimental_conversations', method='POST', language='pt-PT') as gather:
-            gather.say(message=bot_response.content,
-                       language='pt-PT')
+        response.gather(input='speech', action=action_url, speechTimeout=1,
+                        speech_model='experimental_conversations', method='POST', language='pt-PT')
+
+        with response.connect(endpoint='wss://voxflowapi.onrender.com/v1/audio_stream') as connect:
+            connect.stream(self.__langchain.get_response('Pizzaria Amanti', resp_customer, existing_conversation))
+
+            async def collect_data():
+                async for chunk in connect.stream(
+                        self.__langchain.get_response('Pizzaria Amanti', resp_customer, existing_conversation)):
+                    yield chunk
+
+            collected_data.extend([chunk async for chunk in collect_data()])
+
+        processed_data = ''.join(collected_data)
 
         # Append VoxFlowBot Response
-        existing_conversation["conversation"].append({"role": "assistant", "content": bot_response.content})
+        existing_conversation["conversation"].append({"role": "assistant", "content": processed_data})
 
         self.__redis.set(conversation_id, json.dumps(existing_conversation))
 
         return str(response)
+
+    async def handle_response_stream(self, websocket):
+
+        while True:
+            data = await websocket.receive_text()
+            await websocket.send_text(f"Message text was: {data}")
 
 

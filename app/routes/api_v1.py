@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, File, UploadFile, Depends
+from fastapi import APIRouter, HTTPException, UploadFile, Depends, WebSocket
 from fastapi.responses import HTMLResponse, JSONResponse
 from twilio.twiml.voice_response import VoiceResponse
 import os
@@ -8,7 +8,6 @@ from ..handlers.twilio_handler import TwilioHandler
 from ..handlers.langchain_handler import LangChainHandler
 from ..handlers.supabase_handler import SupabaseHandler
 from starlette.requests import Request
-from urllib.parse import parse_qs
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -58,6 +57,13 @@ def validate_file_type(file: UploadFile):
 
     if file_extension not in allowed_extensions:
         raise HTTPException(status_code=400, detail="Invalid file type")
+
+
+@router.websocket_route("/audio_stream")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    await twilio.handle_response_stream(websocket)
+
 
 
 @router.post("/answer_call", response_class=HTMLResponse)
