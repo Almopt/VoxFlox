@@ -59,7 +59,7 @@ def validate_file_type(file: UploadFile):
         raise HTTPException(status_code=400, detail="Invalid file type")
 
 
-@router.websocket_route("/audio_stream")
+@router.websocket("/audio_stream")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     await twilio.handle_response_stream(websocket)
