@@ -41,6 +41,8 @@ class TwilioHandler:
                              speech_model='experimental_conversations', language='pt-PT') as gather:
             gather.say(message='Olá! Bem-vindo á Pizzaria Amanti, em que posso ajudá-lo?', language='pt-PT')
 
+        print(str(response))
+
         return str(response)
 
     def handle_dialog(self, response, resp_customer, conversation_id):
