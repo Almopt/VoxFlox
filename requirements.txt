@@ -111,7 +111,7 @@ tiktoken==0.4.0
 tokenizers==0.13.3
 torch==2.0.1
 tqdm==4.64.1
-transformers==4.32.1
+transformers==4.36.0
 tritonclient==2.34.0
 twilio==8.7.0
 typing-inspect==0.9.0
